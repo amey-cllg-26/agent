@@ -201,6 +201,7 @@ def row_to_dict(row: pd.Series, out_of_pocket: float, fit: str, warnings: List[s
         "deadline": format_deadline(row.get("deadline")),
         "official_website": str(row.get("official_website", "")),
         "data_confidence": str(row.get("confidence", "")),
+        "last_verified": str(row.get("last_verified", "")).strip() if pd.notna(row.get("last_verified")) and str(row.get("last_verified", "")).strip() != "" else "November 2026",
     }
 
 

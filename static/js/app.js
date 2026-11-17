@@ -526,6 +526,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ${alertHtml}
 
+        <div class="card-footer-meta">
+          <span class="card-verified-date"><i class="fa-solid fa-shield-check"></i> Last verified: ${escapeHtml(s.last_verified || 'November 2026')}</span>
+        </div>
+
         <div class="card-actions">
           <a href="/scholarship/${encodeURIComponent(s.name)}" class="btn btn-secondary btn-sm">Full Profile</a>
           <button type="button" class="btn btn-secondary btn-sm card-quick-view-btn">Quick View</button>
@@ -631,6 +635,11 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="detail-item">
             <label>Application Deadline</label>
             <div class="detail-item-value">${escapeHtml(s.deadline && s.deadline !== '0.0' && s.deadline !== '0' ? s.deadline : 'Not specified — verify on official site')}</div>
+          </div>
+
+          <div class="detail-item" style="font-size: 0.8rem; color: var(--slate-500); display: flex; align-items: center; gap: 0.4rem; padding-top: 0.25rem;">
+            <i class="fa-solid fa-shield-check" style="color: #059669;"></i>
+            <span><strong>Last verified:</strong> ${escapeHtml(s.last_verified || 'November 2026')}</span>
           </div>
         `;
       }

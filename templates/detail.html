@@ -26,7 +26,10 @@
           {% if scholarship.coverage_level == 'full' %}100% FULLY FUNDED{% else %}PARTIAL FUNDING{% endif %}
         </span>
       </div>
-      <span class="detail-institution-note">GCOEK International Directory</span>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span class="detail-institution-note"><i class="fa-solid fa-shield-check" style="color: #10b981;"></i> Verified: {{ scholarship.last_verified or "November 2026" }}</span>
+        <span class="detail-institution-note">GCOEK Directory</span>
+      </div>
     </div>
 
     <h1 class="detail-hero-title">{{ scholarship.name }}</h1>

@@ -261,6 +261,18 @@ def test_sorting_order(client):
         assert first_target <= first_reach, f"Target ({first_target}) should come before Reach ({first_reach})"
 
 
+def test_last_verified_timestamp(client):
+    """Verify that scholarships include a valid last_verified timestamp."""
+    res = client.get("/api/scholarships")
+    assert res.status_code == 200
+    items = res.get_json()["scholarships"]
+    assert len(items) > 0
+    for item in items:
+        lv = item.get("last_verified")
+        assert lv is not None and lv != "", f"Missing last_verified in {item['name']}"
+        assert "202" in lv, f"Expected valid year in last_verified: {lv}"
+
+
 
 
 

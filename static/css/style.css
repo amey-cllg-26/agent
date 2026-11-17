@@ -1057,6 +1057,22 @@ body {
   margin-top: 0.15rem;
 }
 
+.card-footer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 0.45rem;
+}
+
+.card-verified-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #059669;
+}
+
 .card-actions {
   display: flex;
   gap: 0.5rem;
