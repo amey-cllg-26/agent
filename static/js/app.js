@@ -318,23 +318,23 @@ document.addEventListener("DOMContentLoaded", () => {
         filtered = allMatchedResults.filter(s => s.fit === currentFitFilter);
       }
 
-      if (filtered.length === 0 && overBudgetResults.length === 0) {
-        if (emptyResultsState) emptyResultsState.style.display = "block";
+      const hasResults = filtered && filtered.length > 0;
+
+      if (hasResults) {
+        if (emptyResultsState) emptyResultsState.style.display = "none";
+        if (activeViewMode === "grid") {
+          resultsGrid.style.display = "grid";
+          if (resultsTableContainer) resultsTableContainer.style.display = "none";
+          filtered.forEach(s => resultsGrid.appendChild(createCard(s)));
+        } else {
+          resultsGrid.style.display = "none";
+          if (resultsTableContainer) resultsTableContainer.style.display = "block";
+          filtered.forEach(s => resultsTableBody.appendChild(createTableRow(s)));
+        }
+      } else {
         if (resultsGrid) resultsGrid.style.display = "none";
         if (resultsTableContainer) resultsTableContainer.style.display = "none";
-        return;
-      }
-
-      if (emptyResultsState) emptyResultsState.style.display = "none";
-
-      if (activeViewMode === "grid") {
-        resultsGrid.style.display = "grid";
-        if (resultsTableContainer) resultsTableContainer.style.display = "none";
-        filtered.forEach(s => resultsGrid.appendChild(createCard(s)));
-      } else {
-        resultsGrid.style.display = "none";
-        if (resultsTableContainer) resultsTableContainer.style.display = "block";
-        filtered.forEach(s => resultsTableBody.appendChild(createTableRow(s)));
+        if (emptyResultsState) emptyResultsState.style.display = "block";
       }
 
       // Over-budget section
