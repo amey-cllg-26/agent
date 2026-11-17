@@ -284,19 +284,59 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!activeFilterTags) return;
       activeFilterTags.innerHTML = "";
       const tags = [];
-      if (params.degree) tags.push(`Degree: ${params.degree.toUpperCase()}`);
-      if (params.cgpa) tags.push(`GCOEK CGPA: ${params.cgpa}`);
-      tags.push(`Budget ≤ $${params.budgetUsd.toLocaleString()}`);
-      if (params.country) tags.push(`Country: ${params.country}`);
-      if (params.nationality) tags.push(`Citizen: ${params.nationality}`);
-      if (params.keyword) tags.push(`"${params.keyword}"`);
+      if (params.degree && params.degree !== "master") {
+        tags.push({ label: `Degree: ${params.degree.toUpperCase()}`, clear: () => {
+          const m = document.querySelector('input[name="degree"][value="master"]');
+          if (m) { m.checked = true; triggerSearch(); }
+        }});
+      }
+      if (params.cgpa && params.cgpa !== 8.0) {
+        tags.push({ label: `CGPA: ${params.cgpa}`, clear: () => {
+          if (cgpaInput) { cgpaInput.value = "8.0"; updateCgpaNote(); triggerSearch(); }
+        }});
+      }
+      if (params.budgetUsd !== 5000) {
+        tags.push({ label: `Budget ≤ $${params.budgetUsd.toLocaleString()}`, clear: () => {
+          setBudgetValue(5000); triggerSearch();
+        }});
+      }
+      if (params.country) {
+        tags.push({ label: `Country: ${params.country}`, clear: () => {
+          if (countryFilter) { countryFilter.value = ""; triggerSearch(); }
+        }});
+      }
+      if (params.coverage && params.coverage !== "all") {
+        tags.push({ label: `Coverage: ${params.coverage === 'full' ? 'Fully Funded' : 'Partial'}`, clear: () => {
+          if (coverageFilter) { coverageFilter.value = "all"; triggerSearch(); }
+        }});
+      }
+      if (params.keyword) {
+        tags.push({ label: `"${params.keyword}"`, clear: () => {
+          if (keywordSearchInput) { keywordSearchInput.value = ""; triggerSearch(); }
+        }});
+      }
 
       tags.forEach(t => {
         const span = document.createElement("span");
-        span.className = "filter-tag";
-        span.textContent = t;
+        span.className = "filter-tag filter-tag-clickable";
+        span.innerHTML = `<span>${escapeHtml(t.label)}</span> <button type="button" class="tag-remove-btn" title="Remove filter">&times;</button>`;
+        span.querySelector(".tag-remove-btn").addEventListener("click", (e) => {
+          e.stopPropagation();
+          t.clear();
+        });
         activeFilterTags.appendChild(span);
       });
+
+      if (tags.length > 0) {
+        const clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "btn-text active-tags-clear-btn";
+        clearBtn.textContent = "Clear all";
+        clearBtn.addEventListener("click", () => {
+          if (clearAllFiltersBtn) clearAllFiltersBtn.click();
+        });
+        activeFilterTags.appendChild(clearBtn);
+      }
     }
 
     // Fit Tabs
@@ -633,6 +673,30 @@ document.addEventListener("DOMContentLoaded", () => {
         if (clearAllFiltersBtn) clearAllFiltersBtn.click();
       });
     }
+
+    // Reactive Form Input Listeners
+    let inputDebounceTimer = null;
+    function debouncedLiveSearch() {
+      clearTimeout(inputDebounceTimer);
+      inputDebounceTimer = setTimeout(() => {
+        triggerSearch();
+      }, 300);
+    }
+
+    document.querySelectorAll('input[name="degree"]').forEach(radio => {
+      radio.addEventListener("change", triggerSearch);
+    });
+    if (countryFilter) countryFilter.addEventListener("change", triggerSearch);
+    if (coverageFilter) coverageFilter.addEventListener("change", triggerSearch);
+    if (nationalityInput) nationalityInput.addEventListener("input", debouncedLiveSearch);
+    if (cgpaInput) cgpaInput.addEventListener("input", debouncedLiveSearch);
+    if (cgpaScale) cgpaScale.addEventListener("change", () => {
+      updateCgpaNote();
+      triggerSearch();
+    });
+    if (budgetRange) budgetRange.addEventListener("change", triggerSearch);
+    if (budgetInput) budgetInput.addEventListener("change", triggerSearch);
+    if (keywordSearchInput) keywordSearchInput.addEventListener("input", debouncedLiveSearch);
 
     // Initialize search on Directory page
     updateCgpaNote();

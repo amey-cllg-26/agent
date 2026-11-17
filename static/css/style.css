@@ -728,6 +728,42 @@ body {
   font-weight: 500;
 }
 
+.filter-tag-clickable {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.tag-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--slate-500);
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tag-remove-btn:hover {
+  color: var(--danger, #ef4444);
+}
+
+.active-tags-clear-btn {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--slate-500);
+  margin-left: 0.35rem;
+  cursor: pointer;
+}
+
+.active-tags-clear-btn:hover {
+  color: var(--navy-900);
+  text-decoration: underline;
+}
+
 .toolbar-right {
   display: flex;
   align-items: center;
