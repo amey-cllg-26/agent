@@ -2105,3 +2105,92 @@ body {
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   INDIAN CASTE & CATEGORY SCHEMES PORTAL STYLES
+   ========================================================================== */
+.india-hero-banner {
+  border-left: 4px solid #f97316;
+}
+
+.caste-category-nav-bar {
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.caste-nav-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate-600);
+}
+
+.caste-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.caste-pill {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--slate-200);
+  background: var(--slate-50);
+  color: var(--slate-700);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.caste-pill:hover {
+  background: var(--slate-200);
+  color: var(--navy-900);
+}
+
+.caste-pill.active {
+  background: var(--navy-900);
+  color: var(--white);
+  border-color: var(--navy-900);
+}
+
+.caste-pill.pill-sc.active { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+.caste-pill.pill-st.active { background: #047857; border-color: #047857; color: #fff; }
+.caste-pill.pill-obc.active { background: #b45309; border-color: #b45309; color: #fff; }
+.caste-pill.pill-vjnt.active { background: #0f766e; border-color: #0f766e; color: #fff; }
+.caste-pill.pill-sbc.active { background: #0e7490; border-color: #0e7490; color: #fff; }
+.caste-pill.pill-ebc.active { background: #6d28d9; border-color: #6d28d9; color: #fff; }
+.caste-pill.pill-minority.active { background: #15803d; border-color: #15803d; color: #fff; }
+.caste-pill.pill-pwd.active { background: #be123c; border-color: #be123c; color: #fff; }
+
+/* Caste Badges */
+.badge-caste {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.badge-caste-sc { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.badge-caste-st { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+.badge-caste-obc { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.badge-caste-vjnt, .badge-caste-vjntsbc { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
+.badge-caste-sbc { background: #ecfeff; color: #0e7490; border: 1px solid #a5f3fc; }
+.badge-caste-ebcopen, .badge-caste-ebc { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.badge-caste-minority { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-caste-pwd { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+.badge-caste-all { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }

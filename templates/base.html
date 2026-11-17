@@ -46,6 +46,9 @@
         <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
           <i class="fa-solid fa-magnifying-glass"></i> Directory
         </a>
+        <a href="/india" class="nav-item {% if request.path.startswith('/india') %}active{% endif %}">
+          <i class="fa-solid fa-landmark"></i> 🇮🇳 India & Caste Schemes ({{ INDIA_STATS.total_schemes }})
+        </a>
         <a href="/countries" class="nav-item {% if request.path == '/countries' %}active{% endif %}">
           <i class="fa-solid fa-globe"></i> By Country
         </a>
@@ -106,7 +109,8 @@
         <div class="footer-col">
           <h4>Portal Navigation</h4>
           <ul class="footer-links">
-            <li><a href="/">Scholarship Directory</a></li>
+            <li><a href="/">International Directory</a></li>
+            <li><a href="/india">🇮🇳 Indian Caste & MahaDBT Schemes</a></li>
             <li><a href="/countries">Browse By Country</a></li>
             <li><a href="/guide">GCOEK Higher Studies Guide</a></li>
             <li><a href="/dataset">Manage / Upload Dataset</a></li>

@@ -12,6 +12,7 @@ import pandas as pd
 
 import matching_service
 import agent_service
+import india_service
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "gcoek-scholarship-finder-2026")
@@ -23,6 +24,7 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 DEFAULT_DATASET = "europe_scholarships_matching.csv"
 current_dataset_path = DEFAULT_DATASET
 active_df: pd.DataFrame = matching_service.load_data(DEFAULT_DATASET)
+india_df: pd.DataFrame = india_service.load_india_data()
 agent = agent_service.ScholarshipAgent()
 
 COLLEGE_TAGLINE = "Scholarship Finder for Government College of Engineering, Kolhapur"
@@ -47,10 +49,12 @@ def get_dataset_stats(df: pd.DataFrame, filename: str) -> dict:
 @app.context_processor
 def inject_institutional_branding():
     stats = get_dataset_stats(active_df, current_dataset_path)
+    india_stats = india_service.get_india_stats(india_df)
     return {
         "COLLEGE_NAME": COLLEGE_NAME,
         "COLLEGE_TAGLINE": COLLEGE_TAGLINE,
         "DATASET_STATS": stats,
+        "INDIA_STATS": india_stats,
     }
 
 
@@ -128,6 +132,76 @@ def scholarship_detail_page(name: str):
     item = matching_service.row_to_dict(row, out_of_pocket, "target", [])
 
     return render_template("detail.html", scholarship=item)
+
+
+@app.route("/india")
+def india_page():
+    """Dedicated Indian Caste & Category Scholarships Portal for GCOEK."""
+    stats = india_service.get_india_stats(india_df)
+    categories = ["All", "SC", "ST", "OBC", "VJNT", "SBC", "EBC / Open", "Minority", "PWD"]
+    initial_schemes = india_service.filter_india_scholarships(india_df)
+    return render_template("india.html", stats=stats, categories=categories, initial_schemes=initial_schemes[:30])
+
+
+@app.route("/india/scheme/<int:scheme_id>")
+def india_scheme_detail_page(scheme_id: int):
+    """Dedicated view for an Indian Caste / Government Scholarship Scheme."""
+    scheme = india_service.get_scheme_by_id(india_df, scheme_id)
+    if not scheme:
+        abort(404)
+    raw_docs = scheme.get("required_documents", "")
+    doc_list = [d.strip() for d in raw_docs.split(";") if d.strip()]
+    return render_template("india_detail.html", scheme=scheme, doc_list=doc_list)
+
+
+@app.route("/api/india/scholarships", methods=["GET", "POST"])
+def api_india_scholarships():
+    """API endpoint to search and filter Indian caste scholarships."""
+    if request.method == "POST":
+        data = request.get_json() or {}
+        category = data.get("category", "All")
+        max_income = data.get("max_income")
+        authority = data.get("authority", "All")
+        degree = data.get("degree", "All")
+        keyword = data.get("keyword", "")
+    else:
+        category = request.args.get("category", "All")
+        max_income_raw = request.args.get("income", "")
+        max_income = float(max_income_raw) if max_income_raw else None
+        authority = request.args.get("authority", "All")
+        degree = request.args.get("degree", "All")
+        keyword = request.args.get("q", "")
+
+    results = india_service.filter_india_scholarships(
+        india_df,
+        category=category,
+        max_income=max_income,
+        authority=authority,
+        degree=degree,
+        keyword=keyword
+    )
+    return jsonify({
+        "total": len(results),
+        "results": results
+    })
+
+
+@app.route("/api/india/stats", methods=["GET"])
+def api_india_stats():
+    """Returns metadata and category statistics for Indian scholarships."""
+    return jsonify(india_service.get_india_stats(india_df))
+
+
+@app.route("/api/india/export", methods=["GET"])
+def api_india_export():
+    """Exports the Indian caste scholarships dataset as CSV."""
+    return send_file(
+        "india_caste_scholarships.csv",
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name="gcoek_india_caste_scholarships.csv"
+    )
+
 
 
 # ================= REST API ENDPOINTS =================

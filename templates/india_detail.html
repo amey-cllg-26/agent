@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}{{ scheme.scheme_name }} | {{ COLLEGE_TAGLINE }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav">
+    <a href="/"><i class="fa-solid fa-house"></i> Home</a>
+    <span>/</span>
+    <a href="/india"><i class="fa-solid fa-landmark"></i> Indian &amp; Caste Schemes</a>
+    <span>/</span>
+    <span class="breadcrumb-active">{{ scheme.scheme_name }}</span>
+  </nav>
+
+  <!-- Scheme Hero Card -->
+  <div class="card detail-hero-card">
+    <div class="detail-header-top">
+      <div class="detail-badge-group">
+        <span class="badge-country"><i class="fa-solid fa-building-columns"></i> {{ scheme.state_or_central }}</span>
+        <span class="badge-caste badge-caste-{{ scheme.caste_category|lower|replace(' ', '')|replace('/', '') }}">
+          Category: {{ scheme.caste_category }}
+        </span>
+        <span class="badge-fit badge-fit-safer">
+          {% if scheme.max_income_inr > 0 %}Income &le; ₹{{ "{:,}".format(scheme.max_income_inr) }} / yr{% else %}No Income Ceiling{% endif %}
+        </span>
+      </div>
+      <span class="detail-institution-note">GCOEK Institutional Welfare Portal</span>
+    </div>
+
+    <h1 class="detail-hero-title">{{ scheme.scheme_name }}</h1>
+    <div class="detail-funder-subtitle">
+      <i class="fa-solid fa-landmark"></i> Sponsoring Department: <strong>{{ scheme.department }}</strong>
+    </div>
+
+    <!-- Financial Banner -->
+    <div class="detail-finance-banner">
+      <div class="finance-block">
+        <span class="finance-label">Target Degree / Level</span>
+        <span class="finance-val text-sm">{{ scheme.degree_level }}</span>
+      </div>
+      <div class="finance-divider"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="finance-block">
+        <span class="finance-label">Eligible Category</span>
+        <span class="finance-val finance-support">{{ scheme.caste_category }}</span>
+      </div>
+      <div class="finance-divider"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="finance-block finance-net-block">
+        <span class="finance-label">Financial Benefit</span>
+        <span class="finance-val finance-net finance-free">
+          {{ scheme.benefit_summary }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="detail-actions-bar">
+      <a href="{{ scheme.official_portal_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+        Apply on Official Government Portal <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+      <a href="/advisor" class="btn btn-secondary btn-lg">
+        <i class="fa-solid fa-user-graduate"></i> Consult Advisor About Eligibility
+      </a>
+    </div>
+  </div>
+
+  <!-- Detailed Specifications Grid -->
+  <div class="detail-specs-grid">
+
+    <!-- Column 1: Coverage & Eligibility -->
+    <div class="detail-specs-col">
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-gift"></i> Scheme Description &amp; Benefits</h3>
+        <p class="specs-text-large">{{ scheme.description }}</p>
+        <div class="specs-callout">
+          <strong>Key Financial Coverage:</strong> {{ scheme.benefit_summary }}
+        </div>
+      </div>
+
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-award"></i> Eligibility &amp; Reservation Criteria</h3>
+        <p class="specs-text">{{ scheme.eligibility_criteria }}</p>
+        <ul class="checklist-bullet text-sm" style="margin-top: 0.75rem;">
+          <li><strong>Eligible Caste / Social Class:</strong> {{ scheme.caste_category }}</li>
+          <li><strong>Maximum Household Income:</strong> {% if scheme.max_income_inr > 0 %}₹{{ "{:,}".format(scheme.max_income_inr) }} per year (Issued by competent Tahsildar){% else %}Open to all income slabs based on merit / category{% endif %}</li>
+          <li><strong>Course Eligibility:</strong> {{ scheme.degree_level }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Column 2: Mandatory Verification Documents -->
+    <div class="detail-specs-col">
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-clipboard-check"></i> Mandatory Verification Documents</h3>
+        <p class="text-sm" style="color: var(--slate-600); margin-bottom: 0.75rem;">
+          The student verification committee at Government College of Engineering, Kolhapur requires original and self-attested copies of the following certificates:
+        </p>
+
+        <ul class="checklist-bullet">
+          {% for doc in doc_list %}
+          <li style="margin-bottom: 0.5rem;">
+            <i class="fa-solid fa-circle-check" style="color: var(--success); margin-right: 0.4rem;"></i>
+            <strong>{{ doc }}</strong>
+          </li>
+          {% endfor %}
+        </ul>
+
+        <div class="card-alert" style="margin-top: 1.25rem;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>Aadhaar Banking Seeding:</strong> Your bank account must be actively linked with Aadhaar and mapped with NPCI to receive direct benefit transfer (DBT) from the government.
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Steps Card -->
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-list-ol"></i> Step-by-Step Application Process</h3>
+        <ol class="specs-text text-sm" style="padding-left: 1.25rem; line-height: 1.6;">
+          <li>Register on the official portal (<strong>MahaDBT</strong>: <code>mahadbt.maharashtra.gov.in</code> or <strong>NSP</strong>: <code>scholarships.gov.in</code>).</li>
+          <li>Complete Aadhaar biometric / OTP verification and profile creation.</li>
+          <li>Select <strong>{{ scheme.department }}</strong> and locate <strong>{{ scheme.scheme_name }}</strong>.</li>
+          <li>Upload Tahsildar Income Certificate, Caste &amp; Validity Certificates, Domicile, and CAP Allotment Letter.</li>
+          <li>Submit application and note your Application ID. Submit printed hardcopy to GCOEK Student Section for college-level scrutiny.</li>
+        </ol>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

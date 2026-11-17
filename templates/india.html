@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Indian Caste & Government Scholarships | {{ COLLEGE_TAGLINE }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Institutional Hero Section -->
+  <section class="college-hero-banner india-hero-banner">
+    <div class="hero-college-badge">
+      <i class="fa-solid fa-landmark"></i> Government of Maharashtra & Central Welfare Portal
+    </div>
+    <h1 class="hero-main-title">Indian Caste & Category-Based Scholarships</h1>
+    <h2 class="hero-sub-institution">{{ COLLEGE_NAME }} (GCOEK)</h2>
+    <p class="tagline-sub"><strong>{{ COLLEGE_TAGLINE }}</strong></p>
+    <p class="hero-main-desc">
+      Official centralized directory of Government of Maharashtra (MahaDBT), National Scholarship Portal (NSP), AICTE, and PSU corporate scholarships for undergraduate and postgraduate engineering students categorized by caste (SC, ST, OBC, VJNT, SBC, EBC/Open, Minority, PWD) and household income.
+    </p>
+
+    <!-- Key Metrics Ribbon -->
+    <div class="hero-stats-ribbon">
+      <div class="ribbon-item">
+        <span class="ribbon-num" id="indiaStatTotal">{{ stats.total_schemes }}</span>
+        <span class="ribbon-lbl">Total Schemes</span>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">{{ stats.mahadbt_count }}</span>
+        <span class="ribbon-lbl">MahaDBT Maharashtra</span>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">{{ stats.central_count }}</span>
+        <span class="ribbon-lbl">Central (NSP & AICTE)</span>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">₹8.0 Lakh</span>
+        <span class="ribbon-lbl">MahaDBT EBC / NCL Cap</span>
+      </div>
+    </div>
+
+    <!-- Quick Search Bar -->
+    <div class="search-bar-wrapper">
+      <div class="search-bar-input">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="indiaKeywordSearch" placeholder="Search by scheme name, department, or keyword (e.g. MahaDBT, EBC, Swadhar, Pragati, Freeship, Panjabrao)..." autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="indiaMainSearchBtn">
+        Filter Schemes
+      </button>
+    </div>
+  </section>
+
+  <!-- Caste Category Filter Tabs -->
+  <div class="caste-category-nav-bar">
+    <span class="caste-nav-label"><i class="fa-solid fa-users"></i> Select Category / Caste:</span>
+    <div class="caste-pills-row" id="castePillsRow">
+      <button class="caste-pill active" data-category="All">
+        All Categories ({{ stats.total_schemes }})
+      </button>
+      <button class="caste-pill pill-sc" data-category="SC">
+        SC (Scheduled Caste)
+      </button>
+      <button class="caste-pill pill-st" data-category="ST">
+        ST (Scheduled Tribe)
+      </button>
+      <button class="caste-pill pill-obc" data-category="OBC">
+        OBC (Other Backward Class)
+      </button>
+      <button class="caste-pill pill-vjnt" data-category="VJNT">
+        VJNT / NT
+      </button>
+      <button class="caste-pill pill-sbc" data-category="SBC">
+        SBC
+      </button>
+      <button class="caste-pill pill-ebc" data-category="EBC / Open">
+        EBC / EWS (Income &le; 8 LPA)
+      </button>
+      <button class="caste-pill pill-minority" data-category="Minority">
+        Minority Communities
+      </button>
+      <button class="caste-pill pill-pwd" data-category="PWD">
+        PWD / Divyangjan
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Layout: Left Filters + Right Schemes -->
+  <div class="content-layout">
+
+    <!-- Left Controls Sidebar -->
+    <aside class="filters-sidebar">
+      <div class="filter-card">
+        <div class="filter-card-header">
+          <h3><i class="fa-solid fa-sliders"></i> Eligibility Filters</h3>
+          <button type="button" class="btn-text" id="resetIndiaFiltersBtn">Reset</button>
+        </div>
+
+        <form id="indiaFilterForm">
+          <!-- Annual Household Income Limit -->
+          <div class="filter-group">
+            <div class="filter-label-row">
+              <label class="filter-label" for="incomeInput">Max Family Annual Income</label>
+              <span class="budget-badge" id="incomeBadge">Any Income</span>
+            </div>
+            <input type="range" id="incomeRange" min="0" max="1000000" step="50000" value="0" class="range-slider">
+            <div class="budget-number-row">
+              <div class="currency-input">
+                <span class="currency-symbol">₹</span>
+                <input type="number" id="incomeInput" class="form-control" min="0" max="2500000" step="10000" value="0" placeholder="0 = No limit">
+              </div>
+              <div class="budget-quick-pills">
+                <button type="button" class="quick-pill income-quick-pill" data-income="0">All</button>
+                <button type="button" class="quick-pill income-quick-pill" data-income="250000">₹2.5L</button>
+                <button type="button" class="quick-pill income-quick-pill" data-income="800000">₹8.0L</button>
+              </div>
+            </div>
+            <span class="filter-help">MahaDBT EBC &amp; NCL ceiling is ₹8.00 Lakhs/annum.</span>
+          </div>
+
+          <!-- Sponsoring Authority -->
+          <div class="filter-group">
+            <label class="filter-label" for="authorityFilter">Sponsoring Authority</label>
+            <select id="authorityFilter" class="form-control">
+              <option value="All">All Authorities</option>
+              <option value="Maharashtra">Government of Maharashtra (MahaDBT)</option>
+              <option value="Central">Government of India (NSP / AICTE)</option>
+              <option value="Corporate">Corporate &amp; PSU CSR (Siemens, ONGC, Tata, FFE)</option>
+            </select>
+          </div>
+
+          <!-- Engineering Degree Level -->
+          <div class="filter-group">
+            <label class="filter-label" for="degreeFilter">Course Level</label>
+            <select id="degreeFilter" class="form-control">
+              <option value="All">All Course Levels</option>
+              <option value="Engineering">B.E. / B.Tech Engineering Degree</option>
+              <option value="Professional">Post-Matric / Professional</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">
+            Apply Filters
+          </button>
+        </form>
+      </div>
+
+      <!-- Mandatory Verification Checklist Card -->
+      <div class="gcoek-sidebar-card">
+        <h4><i class="fa-solid fa-clipboard-check"></i> GCOEK Mandatory Documents</h4>
+        <p class="text-sm">For MahaDBT scholarship approval, keep these documents ready:</p>
+        <ul class="checklist-bullet text-sm">
+          <li><strong>Income Certificate:</strong> Issued by Tahsildar for FY 2025-26.</li>
+          <li><strong>Caste &amp; Validity:</strong> Compulsory for SC, ST, VJNT, OBC, SBC.</li>
+          <li><strong>Non-Creamy Layer:</strong> Valid for OBC, VJNT, SBC.</li>
+          <li><strong>Domicile:</strong> Maharashtra state domicile certificate.</li>
+          <li><strong>Aadhaar Link:</strong> Aadhaar seeded with active bank account (NPCI mapped).</li>
+        </ul>
+        <a href="/guide" class="btn btn-secondary btn-sm btn-block">Read Application Guide</a>
+      </div>
+    </aside>
+
+    <!-- Right Schemes Display -->
+    <section class="results-main">
+
+      <!-- Results Header Toolbar -->
+      <div class="results-toolbar">
+        <div class="toolbar-left">
+          <h2 class="results-count" id="indiaResultsCount">Showing all verified schemes</h2>
+          <div class="active-tags" id="indiaActiveTags"></div>
+        </div>
+        <div class="toolbar-right">
+          <a href="/api/india/export" class="btn btn-secondary btn-sm" title="Download Indian schemes database as CSV">
+            <i class="fa-solid fa-download"></i> Export CSV
+          </a>
+          <div class="view-toggle">
+            <button class="view-btn active" id="indiaViewGridBtn" title="Card Grid View">
+              <i class="fa-solid fa-table-cells-large"></i>
+            </button>
+            <button class="view-btn" id="indiaViewTableBtn" title="Compact Table View">
+              <i class="fa-solid fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schemes Cards Container -->
+      <div id="indiaSchemesGrid" class="scholarships-grid">
+        <!-- Rendered via JavaScript or initial fallback -->
+        {% for s in initial_schemes %}
+        <div class="scholarship-card">
+          <div class="card-header-row">
+            <div class="card-pills">
+              <span class="badge-country"><i class="fa-solid fa-landmark"></i> {{ s.state_or_central }}</span>
+              <span class="badge-caste badge-caste-{{ s.caste_category|lower|replace(' ', '')|replace('/', '') }}">{{ s.caste_category }}</span>
+            </div>
+            <span class="badge-fit badge-fit-target">
+              {% if s.max_income_inr > 0 %}Income &le; ₹{{ "{:,}".format(s.max_income_inr) }}{% else %}No Income Bar{% endif %}
+            </span>
+          </div>
+
+          <h3 class="card-title">{{ s.scheme_name }}</h3>
+          <div class="card-funder"><i class="fa-solid fa-building-columns"></i> {{ s.department }}</div>
+
+          <div class="card-financials">
+            <div class="financial-metric">
+              <span class="metric-label">Financial Benefit:</span>
+              <span class="metric-amount amount-free">{{ s.benefit_summary }}</span>
+            </div>
+          </div>
+
+          <ul class="card-criteria">
+            <li>
+              <i class="fa-solid fa-user-graduate"></i>
+              <span><strong>Eligible:</strong> {{ s.eligibility_criteria }}</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-file-lines"></i>
+              <span><strong>Documents:</strong> {{ s.required_documents[:80] }}...</span>
+            </li>
+          </ul>
+
+          <div class="card-actions">
+            <a href="/india/scheme/{{ s.id }}" class="btn btn-secondary btn-sm">Full Dossier</a>
+            <button type="button" class="btn btn-secondary btn-sm india-quick-docs-btn" data-id="{{ s.id }}">Documents</button>
+            <a href="{{ s.official_portal_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+              Official Portal <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Table View Container -->
+      <div id="indiaTableContainer" class="results-table-wrapper" style="display: none;">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Scheme Name</th>
+              <th>Authority / Dept</th>
+              <th>Category</th>
+              <th>Income Limit</th>
+              <th>Financial Benefits</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="indiaTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="indiaEmptyState" class="empty-results" style="display: none;">
+        <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h3>No matching schemes found</h3>
+        <p>Try resetting the category filter or increasing the household income ceiling.</p>
+        <button class="btn btn-secondary btn-sm" id="indiaEmptyResetBtn">Reset All Filters</button>
+      </div>
+
+    </section>
+  </div>
+</div>
+
+<!-- Quick Documents Checklist Modal -->
+<div class="modal-backdrop" id="indiaDocModal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <div>
+        <span class="country-tag" id="modalSchemeAuth">Maharashtra MahaDBT</span>
+        <h2 id="modalSchemeTitle">Scheme Title</h2>
+        <span class="funder-text" id="modalSchemeDept">Department</span>
+      </div>
+      <button class="modal-close" id="closeIndiaDocModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-item">
+        <label>Applicable Category &amp; Income Ceiling</label>
+        <div class="detail-item-value" id="modalSchemeCategory">SC / ST • Income Limit</div>
+      </div>
+      <div class="detail-item">
+        <label>Scheme Benefits</label>
+        <div class="detail-item-value" id="modalSchemeBenefit">100% Tuition Fee Waiver</div>
+      </div>
+      <div class="detail-item">
+        <label>Mandatory Document Verification Checklist</label>
+        <ul class="checklist-bullet" id="modalSchemeDocsList"></ul>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="closeIndiaDocFooterBtn">Close</button>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="modalSchemeLink">
+        Open Application Portal <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

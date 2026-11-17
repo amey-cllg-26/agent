@@ -153,3 +153,59 @@ Nordic Innovation Grant,Norway,Nordic Council,master,partial,15000,5000
     reset_res = client.post("/api/reset-dataset")
     assert reset_res.status_code == 200
     assert reset_res.get_json()["stats"]["total_scholarships"] >= 20
+
+
+def test_india_portal_routes(client):
+    """Verify Indian Caste & Category Schemes portal loads properly."""
+    res_india = client.get("/india")
+    assert res_india.status_code == 200
+    assert b"Indian Caste &amp; Category-Based Scholarships" in res_india.data or b"Indian Caste & Category-Based Scholarships" in res_india.data
+    assert b"Government College of Engineering, Kolhapur" in res_india.data
+    assert b"MahaDBT" in res_india.data
+    assert b"SC (Scheduled Caste)" in res_india.data
+
+
+def test_india_scheme_detail(client):
+    """Verify Indian scheme detail page loads with document checklist."""
+    res_scheme = client.get("/india/scheme/1")
+    assert res_scheme.status_code == 200
+    assert b"Government of Maharashtra" in res_scheme.data
+    assert b"Mandatory Verification Documents" in res_scheme.data
+
+
+def test_india_api_filtering(client):
+    """Verify Indian scholarship API filters by caste category and income limit."""
+    # SC Category query
+    res_sc = client.post("/api/india/scholarships", json={"category": "SC"})
+    assert res_sc.status_code == 200
+    data_sc = res_sc.get_json()
+    assert data_sc["total"] > 0
+    assert any("SC" in s["caste_category"] for s in data_sc["results"])
+
+    # Income threshold query
+    res_inc = client.post("/api/india/scholarships", json={"max_income": 200000})
+    assert res_inc.status_code == 200
+    data_inc = res_inc.get_json()
+    assert all(s["max_income_inr"] == 0 or s["max_income_inr"] >= 200000 for s in data_inc["results"])
+
+    # Stats query
+    res_stats = client.get("/api/india/stats")
+    assert res_stats.status_code == 200
+    stats = res_stats.get_json()
+    assert stats["total_schemes"] >= 90
+    assert "SC" in stats["categories"]
+
+
+def test_india_chat_advisory(client):
+    """Verify advisor desk answers inquiries on MahaDBT and Indian caste scholarships."""
+    payload = {
+        "message": "What scholarships can an OBC engineering student get on MahaDBT with 3 lakh income at GCOEK?",
+        "session_id": "test-caste-session"
+    }
+    response = client.post("/api/chat", json=payload)
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "reply" in data
+    assert "MahaDBT" in data["reply"]
+    assert "GCOEK" in data["reply"]
+

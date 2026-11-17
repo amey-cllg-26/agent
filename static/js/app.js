@@ -819,12 +819,380 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================================================================
+  // PAGE 4: INDIA CASTE & CATEGORY SCHEMES (/india)
+  // =========================================================================
+  const indiaFilterForm = document.getElementById("indiaFilterForm");
+  if (indiaFilterForm) {
+    let currentCategory = "All";
+    let activeIndiaView = "grid";
+    let allIndiaSchemes = [];
+
+    const castePills = document.querySelectorAll(".caste-pill");
+    const incomeRange = document.getElementById("incomeRange");
+    const incomeInput = document.getElementById("incomeInput");
+    const incomeBadge = document.getElementById("incomeBadge");
+    const incomeQuickPills = document.querySelectorAll(".income-quick-pill");
+    const authorityFilter = document.getElementById("authorityFilter");
+    const degreeFilter = document.getElementById("degreeFilter");
+    const indiaKeywordSearch = document.getElementById("indiaKeywordSearch");
+    const indiaMainSearchBtn = document.getElementById("indiaMainSearchBtn");
+    const resetIndiaFiltersBtn = document.getElementById("resetIndiaFiltersBtn");
+
+    const indiaResultsCount = document.getElementById("indiaResultsCount");
+    const indiaActiveTags = document.getElementById("indiaActiveTags");
+    const indiaSchemesGrid = document.getElementById("indiaSchemesGrid");
+    const indiaTableContainer = document.getElementById("indiaTableContainer");
+    const indiaTableBody = document.getElementById("indiaTableBody");
+    const indiaEmptyState = document.getElementById("indiaEmptyState");
+    const indiaEmptyResetBtn = document.getElementById("indiaEmptyResetBtn");
+    const indiaViewGridBtn = document.getElementById("indiaViewGridBtn");
+    const indiaViewTableBtn = document.getElementById("indiaViewTableBtn");
+
+    // Modal elements
+    const indiaDocModal = document.getElementById("indiaDocModal");
+    const closeIndiaDocModalBtn = document.getElementById("closeIndiaDocModalBtn");
+    const closeIndiaDocFooterBtn = document.getElementById("closeIndiaDocFooterBtn");
+    const modalSchemeAuth = document.getElementById("modalSchemeAuth");
+    const modalSchemeTitle = document.getElementById("modalSchemeTitle");
+    const modalSchemeDept = document.getElementById("modalSchemeDept");
+    const modalSchemeCategory = document.getElementById("modalSchemeCategory");
+    const modalSchemeBenefit = document.getElementById("modalSchemeBenefit");
+    const modalSchemeDocsList = document.getElementById("modalSchemeDocsList");
+    const modalSchemeLink = document.getElementById("modalSchemeLink");
+
+    function setIncomeValue(val) {
+      const num = Math.max(0, parseInt(val) || 0);
+      if (incomeRange) incomeRange.value = num;
+      if (incomeInput) incomeInput.value = num;
+      if (incomeBadge) {
+        incomeBadge.textContent = num === 0 ? "Any Income" : `₹${num.toLocaleString("en-IN")} / yr`;
+      }
+    }
+
+    if (incomeRange) {
+      incomeRange.addEventListener("input", (e) => setIncomeValue(e.target.value));
+    }
+    if (incomeInput) {
+      incomeInput.addEventListener("input", (e) => setIncomeValue(e.target.value));
+    }
+
+    incomeQuickPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        setIncomeValue(pill.dataset.income);
+        triggerIndiaSearch();
+      });
+    });
+
+    castePills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        castePills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        currentCategory = pill.dataset.category || "All";
+        triggerIndiaSearch();
+      });
+    });
+
+    async function triggerIndiaSearch() {
+      if (indiaResultsCount) indiaResultsCount.textContent = "Filtering caste & government schemes...";
+      if (indiaSchemesGrid) indiaSchemesGrid.innerHTML = "";
+      if (indiaTableBody) indiaTableBody.innerHTML = "";
+      if (indiaEmptyState) indiaEmptyState.style.display = "none";
+
+      const incomeVal = incomeInput ? (parseFloat(incomeInput.value) || 0) : 0;
+      const authorityVal = authorityFilter ? authorityFilter.value : "All";
+      const degreeVal = degreeFilter ? degreeFilter.value : "All";
+      const keywordVal = indiaKeywordSearch ? indiaKeywordSearch.value.trim() : "";
+
+      updateIndiaTags({ currentCategory, incomeVal, authorityVal, degreeVal, keywordVal });
+
+      try {
+        const res = await fetch("/api/india/scholarships", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            category: currentCategory,
+            max_income: incomeVal,
+            authority: authorityVal,
+            degree: degreeVal,
+            keyword: keywordVal
+          })
+        });
+
+        const data = await res.json();
+        allIndiaSchemes = data.results || [];
+
+        if (indiaResultsCount) {
+          indiaResultsCount.textContent = `${allIndiaSchemes.length} Scheme${allIndiaSchemes.length === 1 ? '' : 's'} Available`;
+        }
+
+        renderIndiaResults();
+      } catch (err) {
+        console.error("India scheme search error:", err);
+        showToast("Error filtering Indian schemes", "error");
+        if (indiaEmptyState) indiaEmptyState.style.display = "block";
+      }
+    }
+
+    function updateIndiaTags(params) {
+      if (!indiaActiveTags) return;
+      indiaActiveTags.innerHTML = "";
+      const tags = [];
+      if (params.currentCategory && params.currentCategory !== "All") {
+        tags.push(`Category: ${params.currentCategory}`);
+      }
+      if (params.incomeVal > 0) {
+        tags.push(`Income ≤ ₹${params.incomeVal.toLocaleString("en-IN")}`);
+      }
+      if (params.authorityVal && params.authorityVal !== "All") {
+        tags.push(`Authority: ${params.authorityVal}`);
+      }
+      if (params.degreeVal && params.degreeVal !== "All") {
+        tags.push(`Course: ${params.degreeVal}`);
+      }
+      if (params.keywordVal) {
+        tags.push(`"${params.keywordVal}"`);
+      }
+
+      tags.forEach(t => {
+        const span = document.createElement("span");
+        span.className = "filter-tag";
+        span.textContent = t;
+        indiaActiveTags.appendChild(span);
+      });
+    }
+
+    function renderIndiaResults() {
+      if (!indiaSchemesGrid || !indiaTableBody) return;
+      indiaSchemesGrid.innerHTML = "";
+      indiaTableBody.innerHTML = "";
+
+      if (allIndiaSchemes.length === 0) {
+        if (indiaEmptyState) indiaEmptyState.style.display = "block";
+        if (indiaSchemesGrid) indiaSchemesGrid.style.display = "none";
+        if (indiaTableContainer) indiaTableContainer.style.display = "none";
+        return;
+      }
+
+      if (indiaEmptyState) indiaEmptyState.style.display = "none";
+
+      if (activeIndiaView === "grid") {
+        indiaSchemesGrid.style.display = "grid";
+        if (indiaTableContainer) indiaTableContainer.style.display = "none";
+        allIndiaSchemes.forEach(s => indiaSchemesGrid.appendChild(createIndiaCard(s)));
+      } else {
+        indiaSchemesGrid.style.display = "none";
+        if (indiaTableContainer) indiaTableContainer.style.display = "block";
+        allIndiaSchemes.forEach(s => indiaTableBody.appendChild(createIndiaTableRow(s)));
+      }
+    }
+
+    function createIndiaCard(s) {
+      const card = document.createElement("div");
+      card.className = "scholarship-card";
+
+      const catClean = (s.caste_category || "All").toLowerCase().replace(/[\s\/]/g, "");
+      const incomeStr = s.max_income_inr > 0 ? `Income ≤ ₹${s.max_income_inr.toLocaleString("en-IN")}` : "No Income Bar";
+
+      card.innerHTML = `
+        <div class="card-header-row">
+          <div class="card-pills">
+            <span class="badge-country"><i class="fa-solid fa-landmark"></i> ${escapeHtml(s.state_or_central)}</span>
+            <span class="badge-caste badge-caste-${catClean}">${escapeHtml(s.caste_category)}</span>
+          </div>
+          <span class="badge-fit badge-fit-target">${incomeStr}</span>
+        </div>
+
+        <h3 class="card-title">${escapeHtml(s.scheme_name)}</h3>
+        <div class="card-funder"><i class="fa-solid fa-building-columns"></i> ${escapeHtml(s.department)}</div>
+
+        <div class="card-financials">
+          <div class="financial-metric">
+            <span class="metric-label">Financial Benefit:</span>
+            <span class="metric-amount amount-free">${escapeHtml(s.benefit_summary)}</span>
+          </div>
+        </div>
+
+        <ul class="card-criteria">
+          <li>
+            <i class="fa-solid fa-user-graduate"></i>
+            <span><strong>Eligible:</strong> ${escapeHtml(s.eligibility_criteria)}</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-file-lines"></i>
+            <span><strong>Documents:</strong> ${escapeHtml((s.required_documents || "").substring(0, 85))}...</span>
+          </li>
+        </ul>
+
+        <div class="card-actions">
+          <a href="/india/scheme/${s.id}" class="btn btn-secondary btn-sm">Full Dossier</a>
+          <button type="button" class="btn btn-secondary btn-sm card-quick-docs-btn">Documents</button>
+          <a href="${s.official_portal_url || '#'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+            Portal <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+          </a>
+        </div>
+      `;
+
+      card.querySelector(".card-quick-docs-btn").addEventListener("click", () => {
+        openIndiaDocModal(s);
+      });
+
+      return card;
+    }
+
+    function createIndiaTableRow(s) {
+      const tr = document.createElement("tr");
+      const catClean = (s.caste_category || "All").toLowerCase().replace(/[\s\/]/g, "");
+      const incStr = s.max_income_inr > 0 ? `₹${s.max_income_inr.toLocaleString("en-IN")}` : "No Bar";
+
+      tr.innerHTML = `
+        <td>
+          <a href="/india/scheme/${s.id}" style="font-weight: 600; color: var(--navy-900);">
+            ${escapeHtml(s.scheme_name)}
+          </a>
+        </td>
+        <td>
+          <div>${escapeHtml(s.state_or_central)}</div>
+          <small style="color: var(--slate-500);">${escapeHtml(s.department)}</small>
+        </td>
+        <td><span class="badge-caste badge-caste-${catClean}">${escapeHtml(s.caste_category)}</span></td>
+        <td><strong>${incStr}</strong></td>
+        <td>${escapeHtml(s.benefit_summary)}</td>
+        <td>
+          <div style="display: flex; gap: 0.35rem;">
+            <a href="/india/scheme/${s.id}" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Dossier</a>
+            <button class="btn btn-secondary btn-sm row-docs-btn" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Docs</button>
+          </div>
+        </td>
+      `;
+
+      tr.querySelector(".row-docs-btn").addEventListener("click", () => {
+        openIndiaDocModal(s);
+      });
+
+      return tr;
+    }
+
+    function openIndiaDocModal(s) {
+      if (!indiaDocModal) return;
+      if (modalSchemeAuth) modalSchemeAuth.textContent = s.state_or_central;
+      if (modalSchemeTitle) modalSchemeTitle.textContent = s.scheme_name;
+      if (modalSchemeDept) modalSchemeDept.textContent = s.department;
+      if (modalSchemeCategory) {
+        const incText = s.max_income_inr > 0 ? `Income Limit: ≤ ₹${s.max_income_inr.toLocaleString("en-IN")} / yr` : "No Income Bar (Merit)";
+        modalSchemeCategory.textContent = `Category: ${s.caste_category} • ${incText}`;
+      }
+      if (modalSchemeBenefit) modalSchemeBenefit.textContent = s.benefit_summary;
+      if (modalSchemeLink) modalSchemeLink.href = s.official_portal_url || "#";
+
+      if (modalSchemeDocsList) {
+        modalSchemeDocsList.innerHTML = "";
+        const rawDocs = s.required_documents || "";
+        const docs = rawDocs.split(";").map(d => d.trim()).filter(Boolean);
+        if (docs.length === 0) {
+          modalSchemeDocsList.innerHTML = `<li>Standard MahaDBT verification documents required.</li>`;
+        } else {
+          docs.forEach(doc => {
+            const li = document.createElement("li");
+            li.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--success); margin-right: 0.35rem;"></i> <strong>${escapeHtml(doc)}</strong>`;
+            modalSchemeDocsList.appendChild(li);
+          });
+        }
+      }
+
+      indiaDocModal.classList.add("active");
+    }
+
+    function closeIndiaDocModal() {
+      if (indiaDocModal) indiaDocModal.classList.remove("active");
+    }
+
+    if (closeIndiaDocModalBtn) closeIndiaDocModalBtn.addEventListener("click", closeIndiaDocModal);
+    if (closeIndiaDocFooterBtn) closeIndiaDocFooterBtn.addEventListener("click", closeIndiaDocModal);
+    if (indiaDocModal) {
+      indiaDocModal.addEventListener("click", (e) => {
+        if (e.target === indiaDocModal) closeIndiaDocModal();
+      });
+    }
+
+    // View mode toggle
+    if (indiaViewGridBtn && indiaViewTableBtn) {
+      indiaViewGridBtn.addEventListener("click", () => {
+        activeIndiaView = "grid";
+        indiaViewGridBtn.classList.add("active");
+        indiaViewTableBtn.classList.remove("active");
+        renderIndiaResults();
+      });
+
+      indiaViewTableBtn.addEventListener("click", () => {
+        activeIndiaView = "table";
+        indiaViewTableBtn.classList.add("active");
+        indiaViewGridBtn.classList.remove("active");
+        renderIndiaResults();
+      });
+    }
+
+    // Form submit
+    indiaFilterForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      triggerIndiaSearch();
+    });
+
+    if (indiaMainSearchBtn) indiaMainSearchBtn.addEventListener("click", triggerIndiaSearch);
+    if (indiaKeywordSearch) {
+      indiaKeywordSearch.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") triggerIndiaSearch();
+      });
+    }
+
+    if (resetIndiaFiltersBtn) {
+      resetIndiaFiltersBtn.addEventListener("click", () => {
+        indiaFilterForm.reset();
+        castePills.forEach(p => p.classList.remove("active"));
+        const allPill = document.querySelector('.caste-pill[data-category="All"]');
+        if (allPill) allPill.classList.add("active");
+        currentCategory = "All";
+        setIncomeValue(0);
+        if (authorityFilter) authorityFilter.value = "All";
+        if (degreeFilter) degreeFilter.value = "All";
+        if (indiaKeywordSearch) indiaKeywordSearch.value = "";
+        triggerIndiaSearch();
+      });
+    }
+
+    if (indiaEmptyResetBtn) {
+      indiaEmptyResetBtn.addEventListener("click", () => {
+        if (resetIndiaFiltersBtn) resetIndiaFiltersBtn.click();
+      });
+    }
+
+    // Wire up initial quick docs buttons if pre-rendered
+    document.querySelectorAll(".india-quick-docs-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = parseInt(btn.dataset.id);
+        if (allIndiaSchemes.length === 0) {
+          const res = await fetch("/api/india/scholarships");
+          const data = await res.json();
+          allIndiaSchemes = data.results || [];
+        }
+        const s = allIndiaSchemes.find(item => item.id === id);
+        if (s) openIndiaDocModal(s);
+      });
+    });
+
+    // Initial search
+    triggerIndiaSearch();
+  }
+
+  // =========================================================================
   // GLOBAL KEYBOARD SHORTCUTS
   // =========================================================================
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       const detailModal = document.getElementById("detailModal");
       if (detailModal) detailModal.classList.remove("active");
+      const indiaDocModal = document.getElementById("indiaDocModal");
+      if (indiaDocModal) indiaDocModal.classList.remove("active");
     }
   });
 });
+

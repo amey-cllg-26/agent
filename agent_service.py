@@ -16,25 +16,24 @@ load_dotenv()
 SYSTEM_PROMPT = """You are the official Scholarship Advisor for Government College of Engineering, Kolhapur (GCOEK), an autonomous institute of the Government of Maharashtra.
 Your tagline: "Scholarship Finder for Government College of Engineering, Kolhapur".
 
-Your goal is to assist GCOEK engineering students (Computer Science, Mechanical, Civil, Electrical, and ENTC) and alumni in discovering verified global scholarships across India, North America, Europe, Asia, Australia, and the Middle East for B.E. internships (e.g. DAAD WISE), Master's (M.S./M.Tech), and Ph.D. degrees.
+Your goal is to assist GCOEK engineering students (Computer Science, Mechanical, Civil, Electrical, and ENTC) and alumni in discovering:
+1. **Indian Caste & Government Schemes**: MahaDBT Maharashtra Government schemes (SC Post-Matric, ST Post-Matric, OBC/VJNT/SBC Post-Matric & Freeship, Rajarshi Shahu Maharaj EBC 50% tuition waiver for Open/EWS <= 8 LPA, Dr. Panjabrao Deshmukh hostel allowance, Swadhar & Swayam yojna, Minority scholarships, Divyangjan/PWD schemes) and Central Schemes (AICTE Pragati for Girls, Saksham, Swanath, NSP Central Sector, ONGC, Siemens, FFE).
+2. **International & Overseas Higher Studies Scholarships**: Global programs across USA, Europe, UK, Japan, Singapore, Australia, Canada, Middle East for B.E. internships (e.g. DAAD WISE), Master's (M.S./M.Tech), and Ph.D. degrees.
 
 Instructions:
-1. First, consult the local verified scholarship dataset using `recommend_scholarships` and `get_scholarship_details`.
+1. For Indian schemes, clearly state:
+   - Reserved Category: SC, ST, OBC, VJNT, SBC, EBC/Open, Minority, PWD
+   - Annual Family Income Limit (e.g. ₹2.5 LPA for SC/ST, ₹1 LPA for OBC scholarship / ₹8 LPA for Freeship, ₹8 LPA for EBC)
+   - Assistance: 100% Tuition Fee Waiver, 50% Tuition Fee Waiver, Exam Fee, Maintenance, or Hostel Allowance
+   - Mandatory Documents: Caste Certificate, Caste Validity Certificate, Tahsildar Income Certificate, Domicile of Maharashtra, Non-Creamy Layer (for OBC/VJNT/SBC), CAP Allotment Letter
+   - Official Application Portal (e.g. MahaDBT: https://mahadbt.maharashtra.gov.in/ or NSP: https://scholarships.gov.in/)
 2. Note that GCOEK uses a 10.0 CGPA scale (Shivaji University / DBATU standard: 8.0/10 ~ 3.2/4.0; 8.5/10 ~ 3.4/4.0; 9.0/10 ~ 3.6/4.0).
-3. If the student asks for global opportunities, specific regions, or programs beyond the dataset, draw upon your verified knowledge of official international government and university scholarships (e.g. Fulbright, Knight-Hennessy, Australia Awards, MEXT Japan, GKS Korea, Vanier Canada, Chevening, DAAD WISE, JN Tata Endowment, Narotam Sekhsaria, KAUST, etc.).
-4. Group recommendations into:
+3. Group overseas recommendations into:
    - 🎯 Target: Realistic academic fit
    - 🛡️ Safer: Academic profile exceeds competitive threshold
    - 🚀 Reach: Highly selective / premier prestigious programs
-5. For each recommended scholarship, provide:
-   - Program Name & Host Country
-   - Coverage: Tuition, living stipend, housing, health insurance, airfare
-   - Estimated Out-of-Pocket Cost per year (in USD)
-   - Academic GPA / percentage requirement (converted to GCOEK 10-point scale)
-   - Language / work experience prerequisite
-   - Application deadline
-   - Official website URL
-6. Never invent fictional scholarships. Remind the student to verify exact deadlines and guidelines on the official portal before applying."""
+4. Never invent fictional scholarships. Remind the student to verify exact deadlines and guidelines on the official portal before applying."""
+
 
 
 
@@ -134,6 +133,49 @@ class FallbackAdvisor:
     def respond(self, message: str, session_id: str, df: pd.DataFrame) -> Dict[str, Any]:
         state = self.get_or_create_session(session_id)
         self.extract_entities(message, state)
+
+        # Check for Indian caste / MahaDBT / Government scheme inquiry
+        t_msg = message.lower()
+        if any(w in t_msg for w in ["mahadbt", "caste", "ebc", "obc", "vjnt", "sbc", "swadhar", "swayam", "freeship", "pragati", "panjabrao", "minority"]):
+            try:
+                import india_service
+                ind_df = india_service.load_india_data()
+                kw = None
+                cat = "All"
+                if "sc" in t_msg: cat = "SC"
+                elif "st" in t_msg: cat = "ST"
+                elif "obc" in t_msg: cat = "OBC"
+                elif "vjnt" in t_msg or "nt" in t_msg: cat = "VJNT"
+                elif "sbc" in t_msg: cat = "SBC"
+                elif "ebc" in t_msg or "ews" in t_msg: cat = "EBC / Open"
+                elif "minority" in t_msg: cat = "Minority"
+                elif "pwd" in t_msg or "disab" in t_msg: cat = "PWD"
+
+                schemes = india_service.filter_india_scholarships(ind_df, category=cat, keyword=kw)
+                if schemes:
+                    top_items = schemes[:4]
+                    items_txt = ""
+                    for s in top_items:
+                        inc_str = f"Up to ₹{s['max_income_inr']:,}/yr" if s['max_income_inr'] > 0 else "No Income Bar / Merit Based"
+                        items_txt += f"### 🏛️ [{s['scheme_name']}](/india/scheme/{s['id']})\n"
+                        items_txt += f"- **Authority**: {s['state_or_central']} • *{s['department']}*\n"
+                        items_txt += f"- **Category**: `{s['caste_category']}` | **Income Limit**: {inc_str}\n"
+                        items_txt += f"- **Benefit**: {s['benefit_summary']}\n"
+                        items_txt += f"- **Key Documents**: {s['required_documents']}\n\n"
+
+                    reply_text = (
+                        f"## 🇮🇳 Government of Maharashtra (MahaDBT) & Central Schemes for GCOEK\n\n"
+                        f"Here are the top scholarship schemes for **{cat}** students at Government College of Engineering, Kolhapur:\n\n"
+                        f"{items_txt}"
+                        f"👉 You can explore all 100+ state and central schemes on our dedicated **[🇮🇳 India & Caste Schemes Portal](/india)**."
+                    )
+                    return {
+                        "reply": reply_text,
+                        "matched_scholarships": [],
+                        "session_state": state
+                    }
+            except Exception as e:
+                pass
 
         # Check for scholarship detail inquiry (e.g., "tell me about DAAD", "info on Chevening")
         detail_match = re.search(r"(?:about|detail(?:s)? of|tell me about|info on)\s+([a-zA-Z\s]+)", message, re.IGNORECASE)
