@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Scholarship Counseling & Advisor Desk | {{ COLLEGE_TAGLINE }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header-card">
+    <div class="header-badge">
+      <i class="fa-solid fa-user-graduate"></i> Academic Advisory Desk
+    </div>
+    <h1>GCOEK Scholarship Advisor & Counseling Desk</h1>
+    <p class="tagline-sub">{{ COLLEGE_TAGLINE }}</p>
+    <p class="page-header-desc">
+      Interactive advisory system assisting engineering students of Government College of Engineering, Kolhapur in matching their profile (degree, branch, CGPA, and budget) with verified scholarships worldwide.
+    </p>
+  </div>
+
+  <!-- Advisor Main Container -->
+  <div class="advisor-page-container">
+
+    <!-- Advisor Left Sidebar (Help & Context) -->
+    <div class="advisor-left-sidebar">
+      <div class="card">
+        <h3><i class="fa-solid fa-circle-question"></i> How to Ask</h3>
+        <p class="text-sm">For the most tailored recommendations, mention:</p>
+        <ul class="checklist-bullet">
+          <li><strong>Your Branch:</strong> Computer, Mechanical, Civil, Electrical, etc.</li>
+          <li><strong>Target Degree:</strong> Master's (M.S./M.Tech) or Ph.D.</li>
+          <li><strong>Your GCOEK CGPA:</strong> e.g., 8.4/10.0 or percentage</li>
+          <li><strong>Annual Budget:</strong> e.g., $0 (100% funded) or $5,000</li>
+          <li><strong>Preferred Country:</strong> Germany, USA, UK, Japan, etc.</li>
+        </ul>
+
+        <div class="suggested-prompts-section">
+          <h4>Suggested Questions</h4>
+          <button class="advisor-quick-prompt" data-text="I am a B.E. Computer Science student at GCOEK with 8.4 CGPA. What are the best fully funded master scholarships in Germany and USA?">
+            💻 Computer Science (8.4 CGPA) in Germany/USA
+          </button>
+          <button class="advisor-quick-prompt" data-text="What research internships can 3rd year GCOEK engineering students apply for abroad, like DAAD WISE?">
+            🔬 3rd Year Internships abroad (DAAD WISE)
+          </button>
+          <button class="advisor-quick-prompt" data-text="Tell me about JN Tata Endowment and Narotam Sekhsaria loan scholarships for Indian engineering graduates.">
+            🇮🇳 Tata & Narotam Sekhsaria scholarships
+          </button>
+          <button class="advisor-quick-prompt" data-text="Find fully funded mechanical engineering master programs with living stipend in Europe or Asia.">
+            ⚙️ Mechanical Engineering fully funded
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advisor Chat Column -->
+    <div class="advisor-chat-column">
+      <div class="card chat-card-full">
+        <div class="chat-card-header">
+          <div class="advisor-status">
+            <span class="status-indicator indicator-safer"></span>
+            <div>
+              <strong>GCOEK Scholarship Counseling Assistant</strong>
+              <span class="advisor-status-text">Active • AI & Verified Database Knowledge</span>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="resetAdvisorChatBtn">
+            <i class="fa-solid fa-rotate-right"></i> Reset Chat
+          </button>
+        </div>
+
+        <div class="chat-messages-scroll" id="advisorFullChatMessages">
+          <div class="chat-msg system-msg">
+            <div class="msg-bubble">
+              <p><strong>Welcome to the GCOEK Scholarship Advisor Desk!</strong> 🎓</p>
+              <p>I am your specialized counseling assistant for students and alumni of <strong>Government College of Engineering, Kolhapur</strong>. How can I help you explore funding and higher studies opportunities today?</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <form id="advisorFullChatForm" class="chat-full-form">
+            <input type="text" id="advisorFullChatInput" class="form-control" placeholder="Describe your background (branch, CGPA, budget) or ask about specific scholarships..." autocomplete="off" required>
+            <button type="submit" class="btn btn-primary" id="advisorFullSendBtn">
+              <i class="fa-solid fa-paper-plane"></i> Send
+            </button>
+          </form>
+          <span class="chat-disclaimer">Scholarship Finder for Government College of Engineering, Kolhapur • Powered by verified database & Google Gemini</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

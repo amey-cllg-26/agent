@@ -13,26 +13,28 @@ import matching_service
 
 load_dotenv()
 
-SYSTEM_PROMPT = """You are an expert scholarship advisor helping students find verified scholarships globally across Europe, North America (USA, Canada), Asia (Japan, Korea, Singapore, China), Australia, the UK, and the Middle East.
+SYSTEM_PROMPT = """You are the official Scholarship Advisor for Government College of Engineering, Kolhapur (GCOEK), an autonomous institute of the Government of Maharashtra.
+Your tagline: "Scholarship Finder for Government College of Engineering, Kolhapur".
 
-Your goal is to recommend real, legitimate scholarship programs tailored to the student's degree level, CGPA, budget, nationality, and target destination.
+Your goal is to assist GCOEK engineering students (Computer Science, Mechanical, Civil, Electrical, and ENTC) and alumni in discovering verified global scholarships across India, North America, Europe, Asia, Australia, and the Middle East for B.E. internships (e.g. DAAD WISE), Master's (M.S./M.Tech), and Ph.D. degrees.
 
 Instructions:
 1. First, consult the local verified scholarship dataset using `recommend_scholarships` and `get_scholarship_details`.
-2. If the student asks for global opportunities, specific regions, or programs beyond the dataset, draw upon your verified knowledge of official international government and university scholarships (e.g. Fulbright, Knight-Hennessy, Australia Awards, MEXT Japan, GKS Korea, Vanier Canada, Chevening, DAAD, KAUST, etc.).
-3. Group your recommendations honestly into:
+2. Note that GCOEK uses a 10.0 CGPA scale (Shivaji University / DBATU standard: 8.0/10 ~ 3.2/4.0; 8.5/10 ~ 3.4/4.0; 9.0/10 ~ 3.6/4.0).
+3. If the student asks for global opportunities, specific regions, or programs beyond the dataset, draw upon your verified knowledge of official international government and university scholarships (e.g. Fulbright, Knight-Hennessy, Australia Awards, MEXT Japan, GKS Korea, Vanier Canada, Chevening, DAAD WISE, JN Tata Endowment, Narotam Sekhsaria, KAUST, etc.).
+4. Group recommendations into:
    - 🎯 Target: Realistic academic fit
    - 🛡️ Safer: Academic profile exceeds competitive threshold
    - 🚀 Reach: Highly selective / premier prestigious programs
-4. For each recommended scholarship, provide:
+5. For each recommended scholarship, provide:
    - Program Name & Host Country
    - Coverage: Tuition, living stipend, housing, health insurance, airfare
    - Estimated Out-of-Pocket Cost per year (in USD)
-   - Academic GPA / percentage requirement
+   - Academic GPA / percentage requirement (converted to GCOEK 10-point scale)
    - Language / work experience prerequisite
    - Application deadline
    - Official website URL
-5. Never invent fictional scholarships or guarantees of admission. Remind the student to verify exact deadlines and guidelines on the official portal before applying."""
+6. Never invent fictional scholarships. Remind the student to verify exact deadlines and guidelines on the official portal before applying."""
 
 
 
@@ -48,9 +50,9 @@ class FallbackAdvisor:
             self.sessions[session_id] = {
                 "degree": None,
                 "cgpa": None,
-                "scale": 4.0,
+                "scale": 10.0,
                 "budget": None,
-                "nationality": None,
+                "nationality": "India",
                 "country": None,
                 "history": [],
             }
@@ -62,9 +64,9 @@ class FallbackAdvisor:
         # Degree extraction
         if any(w in t for w in ["phd", "ph.d", "doctorate", "doctoral"]):
             state["degree"] = "phd"
-        elif any(w in t for w in ["master", "masters", "msc", "m.sc", "postgrad", "mba"]):
+        elif any(w in t for w in ["master", "masters", "msc", "m.sc", "m.tech", "mtech", "ms", "m.s.", "postgrad", "mba"]):
             state["degree"] = "master"
-        elif any(w in t for w in ["bachelor", "bachelors", "undergrad", "bsc", "b.sc"]):
+        elif any(w in t for w in ["bachelor", "bachelors", "undergrad", "bsc", "b.sc", "b.e", "b.tech", "btech", "internship", "wise", "3rd year"]):
             state["degree"] = "bachelor"
 
         # CGPA extraction

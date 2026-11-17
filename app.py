@@ -1,12 +1,12 @@
 """
-Scholarship Finder Agent - Web Server (Flask)
-Runs on http://127.0.0.1:5000
+Scholarship Finder for Government College of Engineering, Kolhapur
+Web Server (Flask) - Multi-Page Application
 """
 import os
 import io
 import uuid
 from typing import Optional
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, abort
 from werkzeug.utils import secure_filename
 import pandas as pd
 
@@ -14,7 +14,7 @@ import matching_service
 import agent_service
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "scholarship-finder-secret-key-2026")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "gcoek-scholarship-finder-2026")
 app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB max
 
@@ -24,6 +24,9 @@ DEFAULT_DATASET = "europe_scholarships_matching.csv"
 current_dataset_path = DEFAULT_DATASET
 active_df: pd.DataFrame = matching_service.load_data(DEFAULT_DATASET)
 agent = agent_service.ScholarshipAgent()
+
+COLLEGE_TAGLINE = "Scholarship Finder for Government College of Engineering, Kolhapur"
+COLLEGE_NAME = "Government College of Engineering, Kolhapur"
 
 
 def get_dataset_stats(df: pd.DataFrame, filename: str) -> dict:
@@ -40,10 +43,94 @@ def get_dataset_stats(df: pd.DataFrame, filename: str) -> dict:
     }
 
 
+# Context processor to make institutional branding available in every template
+@app.context_processor
+def inject_institutional_branding():
+    stats = get_dataset_stats(active_df, current_dataset_path)
+    return {
+        "COLLEGE_NAME": COLLEGE_NAME,
+        "COLLEGE_TAGLINE": COLLEGE_TAGLINE,
+        "DATASET_STATS": stats,
+    }
+
+
+# ================= MULTI-PAGE HTML ROUTES =================
+
 @app.route("/")
-def index():
+def home():
+    """Main Scholarship Directory and Matcher Page."""
     return render_template("index.html")
 
+
+@app.route("/countries")
+def countries_page():
+    """Browse Scholarships by Destination Country and Region."""
+    # Group scholarships by country
+    country_groups = {}
+    for _, row in active_df.iterrows():
+        c = str(row.get("country", "Other")).strip()
+        if c not in country_groups:
+            country_groups[c] = []
+        c_val = row.get("est_annual_cost_usd")
+        s_val = row.get("est_annual_support_usd")
+        cost = c_val if pd.notna(c_val) and c_val != "" else 0
+        support = s_val if pd.notna(s_val) and s_val != "" else 0
+        out_of_pocket = max(0, cost - support)
+        country_groups[c].append(matching_service.row_to_dict(row, out_of_pocket, "target", []))
+
+    sorted_countries = sorted(country_groups.keys())
+    return render_template("countries.html", country_groups=country_groups, sorted_countries=sorted_countries)
+
+
+@app.route("/dataset")
+def dataset_page():
+    """Dedicated Dataset Manager & Upload Page."""
+    stats = get_dataset_stats(active_df, current_dataset_path)
+    return render_template("dataset.html", stats=stats)
+
+
+@app.route("/guide")
+def guide_page():
+    """Official GCOEK Engineering Higher Studies & Scholarships Guide."""
+    return render_template("guide.html")
+
+
+@app.route("/advisor")
+def advisor_page():
+    """Dedicated Scholarship Counseling & Advisor Desk."""
+    return render_template("advisor.html")
+
+
+@app.route("/scholarship/<path:name>")
+def scholarship_detail_page(name: str):
+    """Dedicated view for a single scholarship program."""
+    import urllib.parse
+    clean_name = urllib.parse.unquote(name).strip()
+    matches = active_df[active_df["scholarship_name"].str.contains(clean_name, case=False, regex=False)]
+    if matches.empty:
+        # Fallback to key words search
+        words = [w for w in clean_name.split() if len(w) > 3]
+        for w in words:
+            sub = active_df[active_df["scholarship_name"].str.contains(w, case=False, regex=False)]
+            if not sub.empty:
+                matches = sub
+                break
+
+    if matches.empty:
+        abort(404)
+
+    row = matches.iloc[0]
+    c_val = row.get("est_annual_cost_usd")
+    s_val = row.get("est_annual_support_usd")
+    cost = c_val if pd.notna(c_val) and c_val != "" else 0
+    support = s_val if pd.notna(s_val) and s_val != "" else 0
+    out_of_pocket = max(0, cost - support)
+    item = matching_service.row_to_dict(row, out_of_pocket, "target", [])
+
+    return render_template("detail.html", scholarship=item)
+
+
+# ================= REST API ENDPOINTS =================
 
 @app.route("/api/dataset-info", methods=["GET"])
 def dataset_info():
@@ -83,7 +170,6 @@ def list_scholarships():
         )
         filtered = filtered[mask]
 
-    # Convert to standard dict representations
     results = []
     for _, row in filtered.iterrows():
         c_val = row.get("est_annual_cost_usd")
@@ -179,7 +265,7 @@ def upload_dataset():
         current_dataset_path = save_path
         stats = get_dataset_stats(active_df, current_dataset_path)
         return jsonify({
-            "message": f"Dataset '{filename}' successfully uploaded and loaded!",
+            "message": f"Dataset '{filename}' successfully loaded ({len(active_df)} scholarships)!",
             "stats": stats
         })
     except Exception as e:
@@ -188,34 +274,18 @@ def upload_dataset():
 
 @app.route("/api/reset-dataset", methods=["POST"])
 def reset_dataset():
-    """Resets to default European scholarships dataset."""
+    """Resets to default verified global scholarships dataset."""
     global active_df, current_dataset_path
     try:
         active_df = matching_service.load_data(DEFAULT_DATASET)
         current_dataset_path = DEFAULT_DATASET
         stats = get_dataset_stats(active_df, current_dataset_path)
         return jsonify({
-            "message": "Reset to default dataset successfully.",
+            "message": f"Reset to default dataset successfully ({len(active_df)} scholarships).",
             "stats": stats
         })
     except Exception as e:
         return jsonify({"error": f"Failed to reset dataset: {str(e)}"}), 500
-
-
-@app.route("/api/scholarship/<path:name>", methods=["GET"])
-def get_scholarship_detail(name: str):
-    """Fetches details for a single scholarship by name."""
-    matches = active_df[active_df["scholarship_name"].str.contains(name, case=False, regex=False)]
-    if matches.empty:
-        return jsonify({"error": f"No scholarship found matching '{name}'"}), 404
-
-    row = matches.iloc[0]
-    c_val = row.get("est_annual_cost_usd")
-    s_val = row.get("est_annual_support_usd")
-    cost = c_val if pd.notna(c_val) and c_val != "" else 0
-    support = s_val if pd.notna(s_val) and s_val != "" else 0
-    out_of_pocket = max(0, cost - support)
-    return jsonify(matching_service.row_to_dict(row, out_of_pocket, "target", []))
 
 
 @app.route("/api/export", methods=["GET"])
@@ -230,15 +300,15 @@ def export_dataset():
         mem,
         mimetype="text/csv",
         as_attachment=True,
-        download_name="scholarships_export.csv"
+        download_name="gcoek_scholarships_export.csv"
     )
 
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     print(f"=====================================================")
-    print(f"  Scholarship Finder Agent Web UI is starting!")
+    print(f"  {COLLEGE_TAGLINE}")
     print(f"  Access locally at: http://127.0.0.1:{port}")
     print(f"  Active dataset: {current_dataset_path} ({len(active_df)} scholarships)")
     print(f"=====================================================")
-    app.run(host="127.0.0.1", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Scholarships by Destination Country | {{ COLLEGE_TAGLINE }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header-card">
+    <div class="header-badge">
+      <i class="fa-solid fa-earth-americas"></i> Global Opportunities Directory
+    </div>
+    <h1>Browse Scholarships by Destination Country</h1>
+    <p class="tagline-sub">{{ COLLEGE_TAGLINE }}</p>
+    <p class="page-header-desc">
+      Explore verified scholarship programs across {{ DATASET_STATS.countries_count }} countries. Filter programs specifically available for engineering students of Government College of Engineering, Kolhapur.
+    </p>
+  </div>
+
+  <!-- Country Cards Grid -->
+  <div class="country-cards-grid">
+    {% for country in sorted_countries %}
+    {% set items = country_groups[country] %}
+    <div class="country-group-card">
+      <div class="country-group-header">
+        <div class="country-name-row">
+          <i class="fa-solid fa-location-dot country-marker"></i>
+          <h3>{{ country }}</h3>
+        </div>
+        <span class="country-count-badge">{{ items|length }} Scholarship{% if items|length > 1 %}s{% endif %}</span>
+      </div>
+
+      <ul class="country-scholarship-list">
+        {% for s in items %}
+        <li class="country-scholarship-item">
+          <div class="country-item-title-row">
+            <a href="/scholarship/{{ s.name|urlencode }}" class="country-item-link">
+              <strong>{{ s.name }}</strong>
+            </a>
+            <span class="badge-mini-coverage {% if s.coverage_level == 'full' %}mini-full{% else %}mini-partial{% endif %}">
+              {{ s.coverage_level|upper }}
+            </span>
+          </div>
+          <div class="country-item-meta">
+            <span><i class="fa-solid fa-building-columns"></i> {{ s.funder or country }}</span>
+            <span><i class="fa-solid fa-coins"></i> {% if s.out_of_pocket_usd_per_year == 0 %}FREE{% else %}${{ s.out_of_pocket_usd_per_year }}/yr{% endif %}</span>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <div class="country-card-footer">
+        <a href="/?country={{ country|urlencode }}" class="btn btn-secondary btn-sm btn-block">
+          View All in {{ country }} <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

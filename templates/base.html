@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ COLLEGE_TAGLINE }}{% endblock %} | GCOEK</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Priority Institutional Authority Banner -->
+  <div class="institutional-top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span class="govt-badge"><i class="fa-solid fa-landmark"></i> Government of Maharashtra</span>
+        <span class="college-top-name"><strong>{{ COLLEGE_NAME }}</strong> (GCOEK)</span>
+      </div>
+      <div class="top-bar-right">
+        <span class="official-tagline-pill"><i class="fa-solid fa-graduation-cap"></i> {{ COLLEGE_TAGLINE }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Institutional Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <a href="/" class="brand-link">
+          <div class="brand-logo">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">GCOEK Scholarship Finder</span>
+            <span class="brand-sub">{{ COLLEGE_TAGLINE }}</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Multi-Page Navigation Menu -->
+      <nav class="main-nav-links">
+        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+          <i class="fa-solid fa-magnifying-glass"></i> Directory
+        </a>
+        <a href="/countries" class="nav-item {% if request.path == '/countries' %}active{% endif %}">
+          <i class="fa-solid fa-globe"></i> By Country
+        </a>
+        <a href="/guide" class="nav-item {% if request.path == '/guide' %}active{% endif %}">
+          <i class="fa-solid fa-book-open"></i> GCOEK Guide
+        </a>
+        <a href="/dataset" class="nav-item {% if request.path == '/dataset' %}active{% endif %}">
+          <i class="fa-solid fa-database"></i> Dataset ({{ DATASET_STATS.total_scholarships }})
+        </a>
+        <a href="/advisor" class="nav-item {% if request.path == '/advisor' %}active{% endif %}">
+          <i class="fa-solid fa-user-graduate"></i> Advisor Desk
+        </a>
+      </nav>
+
+      <!-- Quick Dataset Indicator -->
+      <div class="nav-actions">
+        <a href="/dataset" class="dataset-quick-tag" title="View or Upload Dataset">
+          <span class="pulse-dot"></span>
+          <span class="quick-count">{{ DATASET_STATS.total_scholarships }} Scholarships</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content Block -->
+  <main class="page-body">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Institutional Footer -->
+  <footer class="institutional-footer">
+    <div class="footer-container">
+      <div class="footer-top-row">
+        <div class="footer-col footer-col-wide">
+          <div class="footer-college-brand">
+            <div class="footer-logo"><i class="fa-solid fa-building-columns"></i></div>
+            <div>
+              <h3>{{ COLLEGE_NAME }}</h3>
+              <p class="tagline-highlight">{{ COLLEGE_TAGLINE }}</p>
+            </div>
+          </div>
+          <p class="footer-description">
+            Dedicated scholarship and higher education portal developed for students and alumni of Government College of Engineering, Kolhapur (GCOEK) to discover verified national and international funding opportunities for B.E., M.Tech, and Ph.D. studies worldwide.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Engineering Branches</h4>
+          <ul class="footer-links">
+            <li><a href="/?q=Computer">Computer Science & Engineering</a></li>
+            <li><a href="/?q=Mechanical">Mechanical Engineering</a></li>
+            <li><a href="/?q=Civil">Civil Engineering</a></li>
+            <li><a href="/?q=Electrical">Electrical Engineering</a></li>
+            <li><a href="/?q=Electronics">Electronics & Telecommunication</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Portal Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="/">Scholarship Directory</a></li>
+            <li><a href="/countries">Browse By Country</a></li>
+            <li><a href="/guide">GCOEK Higher Studies Guide</a></li>
+            <li><a href="/dataset">Manage / Upload Dataset</a></li>
+            <li><a href="/advisor">AI Counseling Desk</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Institutional Address</h4>
+          <div class="footer-address">
+            <p><i class="fa-solid fa-location-dot"></i> Government College of Engineering, Kolhapur (GCOEK)</p>
+            <p>Old Pune-Bangalore Road, Vidyanagar, Kolhapur, Maharashtra 416004, India</p>
+            <p class="footer-portal-note"><i class="fa-solid fa-shield-halved"></i> Official GCOEK Student Portal</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom-row">
+        <p>© 2026 Government College of Engineering, Kolhapur. All rights reserved.</p>
+        <p class="footer-tagline-bottom"><strong>{{ COLLEGE_TAGLINE }}</strong></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Notification Toast Container -->
+  <div class="toast-area" id="toastArea"></div>
+
+  <script src="/static/js/app.js"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

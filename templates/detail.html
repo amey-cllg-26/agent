@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}{{ scholarship.name }} | {{ COLLEGE_TAGLINE }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Breadcrumbs -->
+  <nav class="breadcrumb-nav">
+    <a href="/"><i class="fa-solid fa-house"></i> Directory</a>
+    <span>/</span>
+    <a href="/countries">Countries</a>
+    <span>/</span>
+    <a href="/?country={{ scholarship.country|urlencode }}">{{ scholarship.country }}</a>
+    <span>/</span>
+    <span class="breadcrumb-active">{{ scholarship.name }}</span>
+  </nav>
+
+  <!-- Scholarship Hero Card -->
+  <div class="card detail-hero-card">
+    <div class="detail-header-top">
+      <div class="detail-badge-group">
+        <span class="badge-country"><i class="fa-solid fa-location-dot"></i> {{ scholarship.country }}</span>
+        <span class="badge-fit badge-fit-{{ scholarship.fit }}">{{ scholarship.fit|upper }}</span>
+        <span class="badge-coverage-{{ scholarship.coverage_level }}">
+          {% if scholarship.coverage_level == 'full' %}100% FULLY FUNDED{% else %}PARTIAL FUNDING{% endif %}
+        </span>
+      </div>
+      <span class="detail-institution-note">GCOEK International Directory</span>
+    </div>
+
+    <h1 class="detail-hero-title">{{ scholarship.name }}</h1>
+    <div class="detail-funder-subtitle">
+      <i class="fa-solid fa-building-columns"></i> Administered by: <strong>{{ scholarship.funder or scholarship.country }}</strong>
+    </div>
+
+    <!-- Financial Breakdown Banner -->
+    <div class="detail-finance-banner">
+      <div class="finance-block">
+        <span class="finance-label">Est. Annual Cost</span>
+        <span class="finance-val">
+          {% if scholarship.est_annual_cost_usd %}${{ "{:,}".format(scholarship.est_annual_cost_usd) }}{% else %}N/A{% endif %}
+        </span>
+      </div>
+      <div class="finance-divider"><i class="fa-solid fa-minus"></i></div>
+      <div class="finance-block">
+        <span class="finance-label">Scholarship Support</span>
+        <span class="finance-val finance-support">
+          {% if scholarship.est_annual_support_usd %}${{ "{:,}".format(scholarship.est_annual_support_usd) }}{% else %}N/A{% endif %}
+        </span>
+      </div>
+      <div class="finance-divider"><i class="fa-solid fa-equals"></i></div>
+      <div class="finance-block finance-net-block">
+        <span class="finance-label">Net Out-of-Pocket</span>
+        <span class="finance-val finance-net {% if scholarship.out_of_pocket_usd_per_year == 0 %}finance-free{% endif %}">
+          {% if scholarship.out_of_pocket_usd_per_year == 0 %}FREE (100% Covered){% else %}${{ "{:,}".format(scholarship.out_of_pocket_usd_per_year) }} / yr{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="detail-actions-bar">
+      <a href="{{ scholarship.official_website }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+        Visit Official Application Website <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+      <a href="/advisor" class="btn btn-secondary btn-lg">
+        <i class="fa-solid fa-user-graduate"></i> Consult Advisor About This Scholarship
+      </a>
+    </div>
+  </div>
+
+  <!-- Detailed Specifications Grid -->
+  <div class="detail-specs-grid">
+
+    <!-- Column 1: Coverage & Academic -->
+    <div class="detail-specs-col">
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-gift"></i> Funding & Coverage Details</h3>
+        <p class="specs-text-large">{{ scholarship.coverage_summary or "Covers tuition fees, living allowances, and academic support." }}</p>
+      </div>
+
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-award"></i> Academic & GPA Requirements</h3>
+        <p class="specs-text">{{ scholarship.academic_note or "Strong academic record required in relevant field." }}</p>
+        {% if scholarship.suggested_competitive_cgpa_4 %}
+        <div class="specs-callout">
+          <strong>Suggested Competitive GPA:</strong> ~{{ scholarship.suggested_competitive_cgpa_4 }} / 4.0 scale
+          <span class="specs-hint">(Approx. {{ (scholarship.suggested_competitive_cgpa_4 / 4.0 * 10)|round(1) }}/10.0 GCOEK CGPA)</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Column 2: Eligibility & Prerequisites -->
+    <div class="detail-specs-col">
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-passport"></i> Eligibility & Nationality</h3>
+        <p class="specs-text">{{ scholarship.eligible_nationalities or "Open to all nationalities worldwide, or subject to official call requirements." }}</p>
+
+        {% if scholarship.warnings %}
+        <div class="card-alert" style="margin-top: 1rem;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>{{ scholarship.warnings|join("<br>")|safe }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="card detail-section-card">
+        <h3><i class="fa-solid fa-list-check"></i> Prerequisites</h3>
+        <ul class="specs-checklist">
+          <li>
+            <i class="fa-solid fa-language"></i>
+            <div>
+              <strong>English / Language:</strong>
+              <span>{{ scholarship.english_requirement or "Set by host institution (typically IELTS 6.5 or TOEFL 90)" }}</span>
+            </div>
+          </li>
+          <li>
+            <i class="fa-solid fa-briefcase"></i>
+            <div>
+              <strong>Work Experience:</strong>
+              <span>{{ scholarship.work_experience or "Not strictly required for most engineering programs" }}</span>
+            </div>
+          </li>
+          <li>
+            <i class="fa-solid fa-calendar"></i>
+            <div>
+              <strong>Application Deadline:</strong>
+              <span>{{ scholarship.deadline or "Check official website for annual intake dates" }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

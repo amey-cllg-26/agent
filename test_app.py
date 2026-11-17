@@ -16,11 +16,42 @@ def client():
 
 
 def test_homepage(client):
-    """Verify web application loads correctly."""
+    """Verify web application loads correctly with GCOEK branding."""
     response = client.get("/")
     assert response.status_code == 200
-    assert b"ScholarshipFinder" in response.data
+    assert b"Scholarship Finder for Government College of Engineering, Kolhapur" in response.data
     assert b"Profile & Filters" in response.data
+
+
+def test_multipage_routes(client):
+    """Verify all multi-page portal routes render successfully."""
+    # Countries page
+    res_countries = client.get("/countries")
+    assert res_countries.status_code == 200
+    assert b"Browse Scholarships by Destination Country" in res_countries.data
+    assert b"Government College of Engineering, Kolhapur" in res_countries.data
+
+    # GCOEK Guide page
+    res_guide = client.get("/guide")
+    assert res_guide.status_code == 200
+    assert b"Higher Studies &amp; International Scholarships" in res_guide.data or b"Higher Studies & International Scholarships" in res_guide.data
+    assert b"Shivaji University" in res_guide.data
+
+    # Dataset manager page
+    res_dataset = client.get("/dataset")
+    assert res_dataset.status_code == 200
+    assert b"Scholarship Dataset Management" in res_dataset.data
+
+    # Advisor desk page
+    res_advisor = client.get("/advisor")
+    assert res_advisor.status_code == 200
+    assert b"GCOEK Scholarship Advisor & Counseling Desk" in res_advisor.data
+
+    # Individual scholarship detail page
+    res_detail = client.get("/scholarship/DAAD%20WISE%20(Working%20Internships%20in%20Science%20and%20Engineering)")
+    assert res_detail.status_code == 200
+    assert b"DAAD WISE" in res_detail.data
+    assert b"Government College of Engineering, Kolhapur" in res_detail.data
 
 
 def test_dataset_info(client):

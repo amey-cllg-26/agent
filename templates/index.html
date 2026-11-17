@@ -1,383 +1,267 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scholarship Finder | Search Funded Opportunities</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+{% extends "base.html" %}
 
-  <!-- Top Navigation Bar -->
-  <header class="navbar">
-    <div class="nav-container">
-      <div class="nav-brand">
-        <div class="brand-logo">
-          <i class="fa-solid fa-graduation-cap"></i>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">ScholarshipFinder</span>
-          <span class="brand-desc">International Funding Directory</span>
-        </div>
+{% block title %}Scholarship Finder for Government College of Engineering, Kolhapur{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Hero Section with Prominent GCOEK Tagline & Branding -->
+  <section class="college-hero-banner">
+    <div class="hero-college-badge">
+      <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
+    </div>
+    <h1 class="hero-main-title">Scholarship Finder for Government College of Engineering, Kolhapur</h1>
+    <p class="hero-main-desc">
+      Official centralized directory assisting GCOEK engineering students and alumni in discovering fully funded and partial scholarships for higher studies (M.Tech, M.S., Ph.D.) across India, Europe, USA, Canada, Japan, and Australia.
+    </p>
+
+    <!-- Key Metrics Ribbon -->
+    <div class="hero-stats-ribbon">
+      <div class="ribbon-item">
+        <span class="ribbon-num" id="statHeroTotal">{{ DATASET_STATS.total_scholarships }}</span>
+        <span class="ribbon-lbl">Verified Scholarships</span>
       </div>
-
-      <!-- Dataset Quick Controller in Header -->
-      <div class="dataset-bar">
-        <div class="dataset-meta" id="datasetMetaPill" title="Currently active dataset">
-          <span class="dataset-indicator"></span>
-          <span class="dataset-label">Dataset:</span>
-          <strong id="activeDatasetName">europe_scholarships_matching.csv</strong>
-          <span class="dataset-badge" id="activeDatasetCount">20 scholarships</span>
-        </div>
-
-        <button class="btn btn-secondary btn-sm" id="openDatasetModalBtn">
-          <i class="fa-solid fa-database"></i> Manage Dataset
-        </button>
-
-        <button class="btn btn-primary btn-sm" id="toggleAdvisorDrawerBtn">
-          <i class="fa-solid fa-comments"></i> Advisor Assistant
-        </button>
+      <div class="ribbon-item">
+        <span class="ribbon-num" id="statHeroCountries">{{ DATASET_STATS.countries_count }}</span>
+        <span class="ribbon-lbl">Countries Covered</span>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">100%</span>
+        <span class="ribbon-lbl">Verified Official Portals</span>
+      </div>
+      <div class="ribbon-item">
+        <span class="ribbon-num">10-Point</span>
+        <span class="ribbon-lbl">GCOEK CGPA Converter</span>
       </div>
     </div>
-  </header>
 
-  <!-- Main Container -->
-  <main class="page-container">
+    <!-- Main Search Bar -->
+    <div class="search-bar-wrapper">
+      <div class="search-bar-input">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="keywordSearchInput" placeholder="Search by scholarship, engineering branch, country, or funder (e.g. DAAD WISE, Mechanical, USA, Fulbright)..." autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="mainSearchBtn">
+        Search Scholarships
+      </button>
+    </div>
+  </section>
 
-    <!-- Search Hero Header -->
-    <section class="search-hero">
-      <div class="hero-content">
-        <h1>Find Scholarships Tailored to Your Academic Profile</h1>
-        <p>Search funded bachelor's, master's, and doctoral scholarships based on your GPA, nationality, and budget.</p>
+  <!-- Main Content Layout (Sidebar Filters + Results) -->
+  <div class="content-layout">
+
+    <!-- Left Filters Sidebar -->
+    <aside class="filters-sidebar">
+      <div class="filter-card">
+        <div class="filter-card-header">
+          <h3><i class="fa-solid fa-sliders"></i> Student Profile & Filters</h3>
+          <button type="button" class="btn-text" id="clearAllFiltersBtn">Reset</button>
+        </div>
+
+        <form id="filterForm">
+          <!-- Degree Level -->
+          <div class="filter-group">
+            <label class="filter-label">Target Degree</label>
+            <div class="segmented-control">
+              <label class="segment">
+                <input type="radio" name="degree" value="bachelor">
+                <span>Bachelor</span>
+              </label>
+              <label class="segment">
+                <input type="radio" name="degree" value="master" checked>
+                <span>Master</span>
+              </label>
+              <label class="segment">
+                <input type="radio" name="degree" value="phd">
+                <span>PhD</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Academic Score / CGPA -->
+          <div class="filter-group">
+            <label class="filter-label" for="cgpaInput">Your Academic CGPA / Percentage</label>
+            <div class="gpa-input-group">
+              <input type="number" id="cgpaInput" class="form-control" step="0.01" min="0" max="100" value="8.0" placeholder="8.0">
+              <select id="cgpaScale" class="form-control select-compact">
+                <option value="10" selected>10.0 Scale (GCOEK)</option>
+                <option value="4">4.0 Scale (US)</option>
+                <option value="5">5.0 Scale</option>
+                <option value="100">Percentage %</option>
+              </select>
+            </div>
+            <span class="filter-help" id="cgpaConversionText">Approximate US Scale: 3.20 / 4.0</span>
+          </div>
+
+          <!-- Out-of-Pocket Annual Budget -->
+          <div class="filter-group">
+            <div class="filter-label-row">
+              <label class="filter-label" for="budgetInput">Max Annual Out-of-Pocket Budget</label>
+              <span class="budget-badge" id="budgetLabel">$5,000 / yr</span>
+            </div>
+            <input type="range" id="budgetRange" min="0" max="40000" step="500" value="5000" class="range-slider">
+            <div class="budget-number-row">
+              <div class="currency-input">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="budgetInput" class="form-control" min="0" max="100000" step="100" value="5000">
+              </div>
+              <div class="budget-quick-pills">
+                <button type="button" class="quick-pill" data-budget="0">$0 (Full)</button>
+                <button type="button" class="quick-pill" data-budget="5000">$5k</button>
+                <button type="button" class="quick-pill" data-budget="15000">$15k</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Nationality -->
+          <div class="filter-group">
+            <label class="filter-label" for="nationalityInput">Your Nationality</label>
+            <input type="text" id="nationalityInput" class="form-control" value="India" placeholder="e.g. India">
+            <span class="filter-help">Pre-filled for GCOEK students to verify Indian eligibility.</span>
+          </div>
+
+          <!-- Destination Country -->
+          <div class="filter-group">
+            <label class="filter-label" for="countryFilter">Destination Country</label>
+            <select id="countryFilter" class="form-control">
+              <option value="">All Destinations Worldwide</option>
+              {% for c in DATASET_STATS.countries %}
+              <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Funding Level -->
+          <div class="filter-group">
+            <label class="filter-label" for="coverageFilter">Funding Coverage</label>
+            <select id="coverageFilter" class="form-control">
+              <option value="all">All Funding Levels</option>
+              <option value="full">100% Fully Funded (Tuition + Stipend)</option>
+              <option value="partial">Partial Funding (Tuition Waiver / Grant)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="applyFiltersBtn">
+            Find Matching Scholarships
+          </button>
+        </form>
       </div>
 
-      <!-- Main Search Bar -->
-      <div class="search-bar-wrapper">
-        <div class="search-bar-input">
+      <!-- Quick GCOEK Advisory Box -->
+      <div class="gcoek-sidebar-card">
+        <h4><i class="fa-solid fa-graduation-cap"></i> GCOEK Higher Studies Desk</h4>
+        <p>Planning for GATE, GRE, or overseas engineering admissions? Read our tailored guide for GCOEK students.</p>
+        <a href="/guide" class="btn btn-secondary btn-sm btn-block">Read Engineering Guide</a>
+      </div>
+    </aside>
+
+    <!-- Right Main Results Section -->
+    <section class="results-main">
+
+      <!-- Results Toolbar -->
+      <div class="results-toolbar">
+        <div class="toolbar-left">
+          <h2 class="results-count" id="resultsCountHeader">Loading opportunities...</h2>
+          <div class="active-tags" id="activeFilterTags"></div>
+        </div>
+        <div class="toolbar-right">
+          <div class="view-toggle">
+            <button class="view-btn active" id="viewGridBtn" title="Card Grid View">
+              <i class="fa-solid fa-table-cells-large"></i>
+            </button>
+            <button class="view-btn" id="viewTableBtn" title="Compact Table View">
+              <i class="fa-solid fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fit Categorization Tabs -->
+      <div class="fit-tabs">
+        <button class="fit-tab active" data-fit="all">
+          All Matches (<span id="countAll">0</span>)
+        </button>
+        <button class="fit-tab" data-fit="target">
+          <span class="status-indicator indicator-target"></span> Target (<span id="countTarget">0</span>)
+        </button>
+        <button class="fit-tab" data-fit="safer">
+          <span class="status-indicator indicator-safer"></span> Safer (<span id="countSafer">0</span>)
+        </button>
+        <button class="fit-tab" data-fit="reach">
+          <span class="status-indicator indicator-reach"></span> Reach (<span id="countReach">0</span>)
+        </button>
+      </div>
+
+      <!-- Cards View Container -->
+      <div id="resultsGrid" class="scholarships-grid"></div>
+
+      <!-- Table View Container -->
+      <div id="resultsTableContainer" class="results-table-wrapper" style="display: none;">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Scholarship</th>
+              <th>Country</th>
+              <th>Degree</th>
+              <th>Coverage</th>
+              <th>Out-of-Pocket</th>
+              <th>Fit</th>
+              <th>Deadline</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="resultsTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Over-Budget Section -->
+      <div id="overBudgetContainer" class="over-budget-panel" style="display: none;">
+        <div class="panel-header">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <div>
+            <h3>Closest Matches Just Over Your Budget</h3>
+            <p>These scholarships fit your academic background but have an estimated out-of-pocket cost above your current budget threshold.</p>
+          </div>
+        </div>
+        <div id="overBudgetGrid" class="scholarships-grid"></div>
+      </div>
+
+      <!-- Empty Results State -->
+      <div id="emptyResultsState" class="empty-results" style="display: none;">
+        <div class="empty-icon">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="keywordSearchInput" placeholder="Search by scholarship name, university, country, or field (e.g. DAAD, Germany, STEM)..." autocomplete="off">
         </div>
-        <button class="btn btn-primary" id="mainSearchBtn">
-          Search
-        </button>
+        <h3>No matching scholarships found</h3>
+        <p>Try adjusting your GPA, increasing your maximum budget, or clearing the country filter.</p>
+        <button class="btn btn-secondary btn-sm" id="emptyResetBtn">Reset All Filters</button>
       </div>
+
     </section>
+  </div>
+</div>
 
-    <!-- Main Content Layout (Filters + Results) -->
-    <div class="content-layout">
-
-      <!-- Left Filters Sidebar -->
-      <aside class="filters-sidebar">
-        <div class="filter-card">
-          <div class="filter-card-header">
-            <h3><i class="fa-solid fa-filter"></i> Profile & Filters</h3>
-            <button type="button" class="btn-text" id="clearAllFiltersBtn">Clear All</button>
-          </div>
-
-          <form id="filterForm">
-            <!-- Degree Level -->
-            <div class="filter-group">
-              <label class="filter-label">Target Degree</label>
-              <div class="segmented-control">
-                <label class="segment">
-                  <input type="radio" name="degree" value="bachelor">
-                  <span>Bachelor</span>
-                </label>
-                <label class="segment">
-                  <input type="radio" name="degree" value="master" checked>
-                  <span>Master</span>
-                </label>
-                <label class="segment">
-                  <input type="radio" name="degree" value="phd">
-                  <span>PhD</span>
-                </label>
-              </div>
-            </div>
-
-            <!-- CGPA / Academic Score -->
-            <div class="filter-group">
-              <label class="filter-label" for="cgpaInput">Your Academic Score / GPA</label>
-              <div class="gpa-input-group">
-                <input type="number" id="cgpaInput" class="form-control" step="0.01" min="0" max="100" value="3.4" placeholder="3.4">
-                <select id="cgpaScale" class="form-control select-compact">
-                  <option value="4" selected>4.0 Scale</option>
-                  <option value="5">5.0 Scale</option>
-                  <option value="10">10.0 Scale</option>
-                  <option value="100">Percentage %</option>
-                </select>
-              </div>
-              <span class="filter-help" id="cgpaConversionText">Approximate US Scale: 3.40 / 4.0</span>
-            </div>
-
-            <!-- Annual Out-of-Pocket Budget -->
-            <div class="filter-group">
-              <div class="filter-label-row">
-                <label class="filter-label" for="budgetInput">Max Out-of-Pocket Budget</label>
-                <span class="budget-badge" id="budgetLabel">$5,000 / yr</span>
-              </div>
-              <input type="range" id="budgetRange" min="0" max="40000" step="500" value="5000" class="range-slider">
-              <div class="budget-number-row">
-                <div class="currency-input">
-                  <span class="currency-symbol">$</span>
-                  <input type="number" id="budgetInput" class="form-control" min="0" max="100000" step="100" value="5000">
-                </div>
-                <div class="budget-quick-pills">
-                  <button type="button" class="quick-pill" data-budget="0">$0 (Full)</button>
-                  <button type="button" class="quick-pill" data-budget="5000">$5k</button>
-                  <button type="button" class="quick-pill" data-budget="15000">$15k</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Nationality -->
-            <div class="filter-group">
-              <label class="filter-label" for="nationalityInput">Your Nationality</label>
-              <input type="text" id="nationalityInput" class="form-control" placeholder="e.g. Bangladesh, India, Nigeria...">
-              <span class="filter-help">Used to check regional eligibility rules.</span>
-            </div>
-
-            <!-- Preferred Destination -->
-            <div class="filter-group">
-              <label class="filter-label" for="countryFilter">Destination Country</label>
-              <select id="countryFilter" class="form-control">
-                <option value="">Any Country (All Destinations)</option>
-              </select>
-            </div>
-
-            <!-- Funding Coverage Level -->
-            <div class="filter-group">
-              <label class="filter-label" for="coverageFilter">Funding Coverage</label>
-              <select id="coverageFilter" class="form-control">
-                <option value="all">All Funding Levels</option>
-                <option value="full">100% Fully Funded (Tuition + Living)</option>
-                <option value="partial">Partial Funding (Tuition Waiver / Grant)</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block" id="applyFiltersBtn">
-              Apply Filters
-            </button>
-          </form>
-        </div>
-      </aside>
-
-      <!-- Right Main Results Section -->
-      <section class="results-main">
-
-        <!-- Results Toolbar -->
-        <div class="results-toolbar">
-          <div class="toolbar-left">
-            <h2 class="results-count" id="resultsCountHeader">Loading scholarships...</h2>
-            <div class="active-tags" id="activeFilterTags"></div>
-          </div>
-          <div class="toolbar-right">
-            <div class="view-toggle">
-              <button class="view-btn active" id="viewGridBtn" title="Card Grid View">
-                <i class="fa-solid fa-table-cells-large"></i>
-              </button>
-              <button class="view-btn" id="viewTableBtn" title="Compact Table View">
-                <i class="fa-solid fa-list"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fit Categorization Tabs (All, Target, Safer, Reach) -->
-        <div class="fit-tabs">
-          <button class="fit-tab active" data-fit="all">
-            All Matches (<span id="countAll">0</span>)
-          </button>
-          <button class="fit-tab" data-fit="target">
-            <span class="status-indicator indicator-target"></span> Target (<span id="countTarget">0</span>)
-          </button>
-          <button class="fit-tab" data-fit="safer">
-            <span class="status-indicator indicator-safer"></span> Safer (<span id="countSafer">0</span>)
-          </button>
-          <button class="fit-tab" data-fit="reach">
-            <span class="status-indicator indicator-reach"></span> Reach (<span id="countReach">0</span>)
-          </button>
-        </div>
-
-        <!-- Cards View Container -->
-        <div id="resultsGrid" class="scholarships-grid"></div>
-
-        <!-- Table View Container (Initially Hidden) -->
-        <div id="resultsTableContainer" class="results-table-wrapper" style="display: none;">
-          <table class="results-table">
-            <thead>
-              <tr>
-                <th>Scholarship</th>
-                <th>Country</th>
-                <th>Degree</th>
-                <th>Coverage</th>
-                <th>Out-of-Pocket</th>
-                <th>Fit</th>
-                <th>Deadline</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="resultsTableBody"></tbody>
-          </table>
-        </div>
-
-        <!-- Over-Budget Section -->
-        <div id="overBudgetContainer" class="over-budget-panel" style="display: none;">
-          <div class="panel-header">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <div>
-              <h3>Closest Matches Just Over Your Budget</h3>
-              <p>These scholarships fit your academic background but have an estimated out-of-pocket cost above your budget threshold.</p>
-            </div>
-          </div>
-          <div id="overBudgetGrid" class="scholarships-grid"></div>
-        </div>
-
-        <!-- Empty Results State -->
-        <div id="emptyResultsState" class="empty-results" style="display: none;">
-          <div class="empty-icon">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </div>
-          <h3>No matching scholarships found</h3>
-          <p>Try adjusting your GPA, increasing your maximum budget, or clearing the country filter.</p>
-          <button class="btn btn-secondary btn-sm" id="emptyResetBtn">Reset All Filters</button>
-        </div>
-
-      </section>
+<!-- Standalone Scholarship Detail Modal -->
+<div class="modal-backdrop" id="detailModal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <div>
+        <span class="country-tag" id="detailCountryTag">Country</span>
+        <h2 id="detailTitle">Scholarship Title</h2>
+        <span class="funder-text" id="detailFunder">Funder / University</span>
+      </div>
+      <button class="modal-close" id="closeDetailModalBtn">&times;</button>
     </div>
-  </main>
 
-  <!-- ================= DATASET MANAGEMENT MODAL ================= -->
-  <div class="modal-backdrop" id="datasetModal">
-    <div class="modal-window modal-lg">
-      <div class="modal-header">
-        <div>
-          <h2>Dataset Management</h2>
-          <p class="modal-subtitle">View, upload, or switch scholarship datasets</p>
-        </div>
-        <button class="modal-close" id="closeDatasetModalBtn">&times;</button>
-      </div>
+    <div class="modal-body" id="detailBody">
+      <!-- Injected via JavaScript -->
+    </div>
 
-      <div class="modal-body">
-        <!-- Current Dataset Info Box -->
-        <div class="dataset-stats-grid">
-          <div class="stat-box">
-            <span class="stat-caption">Active Dataset File</span>
-            <strong id="modalDatasetFilename">europe_scholarships_matching.csv</strong>
-          </div>
-          <div class="stat-box">
-            <span class="stat-caption">Total Scholarships</span>
-            <strong id="modalDatasetCount">20</strong>
-          </div>
-          <div class="stat-box">
-            <span class="stat-caption">Countries Represented</span>
-            <strong id="modalDatasetCountries">13</strong>
-          </div>
-          <div class="stat-box">
-            <span class="stat-caption">Funding Distribution</span>
-            <strong id="modalDatasetFunding">12 Full / 8 Partial</strong>
-          </div>
-        </div>
-
-        <!-- Upload New CSV Section -->
-        <div class="upload-section">
-          <h4>Upload Custom Scholarship Dataset (CSV)</h4>
-          <p class="upload-desc">Upload a CSV file containing scholarship data. Standard columns like <code>scholarship_name</code>, <code>country</code>, <code>funder</code>, <code>degree_levels</code>, <code>est_annual_cost_usd</code>, etc. will be automatically parsed.</p>
-
-          <div class="drop-zone" id="csvDropZone">
-            <i class="fa-solid fa-file-arrow-up drop-icon"></i>
-            <p><strong>Click to browse</strong> or drag and drop a CSV file here</p>
-            <span class="drop-help">CSV format up to 16 MB</span>
-            <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
-          </div>
-          <div id="uploadFeedback" class="upload-feedback"></div>
-        </div>
-
-        <!-- Action Bar -->
-        <div class="dataset-actions-row">
-          <a href="/api/export" class="btn btn-secondary btn-sm" id="exportDatasetBtn">
-            <i class="fa-solid fa-download"></i> Export Active Dataset (CSV)
-          </a>
-          <button type="button" class="btn btn-secondary btn-sm" id="revertDefaultDatasetBtn">
-            <i class="fa-solid fa-rotate-left"></i> Revert to Default European Dataset
-          </button>
-        </div>
-      </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="closeDetailFooterBtn">Close</button>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="detailOfficialLink">
+        Official Application Website <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
     </div>
   </div>
-
-  <!-- ================= SCHOLARSHIP DETAIL MODAL ================= -->
-  <div class="modal-backdrop" id="detailModal">
-    <div class="modal-window">
-      <div class="modal-header">
-        <div>
-          <span class="country-tag" id="detailCountryTag">Country</span>
-          <h2 id="detailTitle">Scholarship Title</h2>
-          <span class="funder-text" id="detailFunder">Funder / University</span>
-        </div>
-        <button class="modal-close" id="closeDetailModalBtn">&times;</button>
-      </div>
-
-      <div class="modal-body" id="detailBody">
-        <!-- Injected via JavaScript -->
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" id="closeDetailFooterBtn">Close</button>
-        <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="detailOfficialLink">
-          Official Application Website <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= ADVISOR SIDE DRAWER ================= -->
-  <div class="drawer-overlay" id="advisorDrawerOverlay"></div>
-  <aside class="advisor-drawer" id="advisorDrawer">
-    <div class="drawer-header">
-      <div class="drawer-title">
-        <div class="drawer-icon"><i class="fa-solid fa-user-graduate"></i></div>
-        <div>
-          <h3>Scholarship Advisor</h3>
-          <span class="drawer-sub">Contextual recommendations & advice</span>
-        </div>
-      </div>
-      <button class="drawer-close" id="closeAdvisorDrawerBtn">&times;</button>
-    </div>
-
-    <div class="drawer-messages" id="advisorMessages">
-      <div class="chat-msg system-msg">
-        <div class="msg-bubble">
-          <p><strong>Welcome!</strong> I can help evaluate your eligibility, answer questions about deadlines, or suggest alternative funding paths based on the active dataset.</p>
-          <div class="drawer-prompts">
-            <button class="prompt-chip" data-query="Which scholarships offer full living stipends and airfare?">
-              Full living stipend scholarships
-            </button>
-            <button class="prompt-chip" data-query="What are the work experience requirements for Chevening and DAAD?">
-              Work experience requirements
-            </button>
-            <button class="prompt-chip" data-query="What options exist for students with a CGPA around 3.2?">
-              Options for CGPA ~3.2
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="drawer-footer">
-      <form id="advisorForm" class="drawer-input-group">
-        <input type="text" id="advisorInput" placeholder="Ask a question about scholarships..." autocomplete="off" required>
-        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-arrow-up"></i></button>
-      </form>
-    </div>
-  </aside>
-
-  <!-- Notification Toast -->
-  <div class="toast-area" id="toastArea"></div>
-
-  <script src="/static/js/app.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

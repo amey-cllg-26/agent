@@ -59,10 +59,13 @@ def standardize_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
         else:
             df[col] = None
 
-    # Fill remaining object/string columns with empty string
+    # Fill remaining columns appropriately by dtype
     for col in df.columns:
         if col not in ["est_annual_cost_usd", "est_annual_support_usd", "suggested_competitive_cgpa_4"]:
-            df[col] = df[col].fillna("")
+            if pd.api.types.is_numeric_dtype(df[col]):
+                df[col] = df[col].fillna(0)
+            else:
+                df[col] = df[col].fillna("")
 
     return df
 

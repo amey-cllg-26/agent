@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Management & Upload | {{ COLLEGE_TAGLINE }}{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+  <!-- Page Header -->
+  <div class="page-header-card">
+    <div class="header-badge">
+      <i class="fa-solid fa-database"></i> Transparent Dataset Controller
+    </div>
+    <h1>Scholarship Dataset Management</h1>
+    <p class="tagline-sub">{{ COLLEGE_TAGLINE }}</p>
+    <p class="page-header-desc">
+      Inspect all scholarships loaded in the active database, upload your own custom CSV datasets, or export the verified data. Built for Government College of Engineering, Kolhapur.
+    </p>
+  </div>
+
+  <!-- Dataset Stats Row -->
+  <div class="dataset-stats-grid">
+    <div class="stat-box">
+      <span class="stat-caption">Active Dataset File</span>
+      <strong id="activeDatasetNameDisplay">{{ stats.filename }}</strong>
+    </div>
+    <div class="stat-box">
+      <span class="stat-caption">Total Scholarships</span>
+      <strong id="totalScholarshipsDisplay">{{ stats.total_scholarships }} Programs</strong>
+    </div>
+    <div class="stat-box">
+      <span class="stat-caption">Countries Represented</span>
+      <strong>{{ stats.countries_count }} Nations</strong>
+    </div>
+    <div class="stat-box">
+      <span class="stat-caption">Funding Distribution</span>
+      <strong>{{ stats.coverage_counts.full or 0 }} Full / {{ stats.coverage_counts.partial or 0 }} Partial</strong>
+    </div>
+  </div>
+
+  <!-- CSV Upload Card -->
+  <div class="card dataset-upload-card">
+    <div class="card-header">
+      <div>
+        <h3><i class="fa-solid fa-cloud-arrow-up"></i> Provide / Upload Custom Scholarship Dataset</h3>
+        <p class="card-subtitle">Upload any CSV file. Standard columns such as <code>scholarship_name</code>, <code>country</code>, <code>funder</code>, <code>degree_levels</code>, <code>est_annual_cost_usd</code>, etc. will be automatically mapped.</p>
+      </div>
+      <div class="dataset-actions-row">
+        <a href="/api/export" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-download"></i> Export Active CSV
+        </a>
+        <button type="button" class="btn btn-secondary btn-sm" id="revertDefaultDatasetBtn">
+          <i class="fa-solid fa-rotate-left"></i> Revert to Default
+        </button>
+      </div>
+    </div>
+
+    <!-- Drag & Drop Zone -->
+    <div class="drop-zone" id="csvDropZone">
+      <i class="fa-solid fa-file-arrow-up drop-icon"></i>
+      <p><strong>Click to browse</strong> or drag and drop a CSV file here</p>
+      <span class="drop-help">CSV format up to 16 MB • Auto-normalizes column aliases</span>
+      <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+    </div>
+    <div id="uploadFeedback" class="upload-feedback"></div>
+  </div>
+
+  <!-- Complete Table Card -->
+  <div class="card table-card">
+    <div class="card-header table-header-flex">
+      <div>
+        <h3><i class="fa-solid fa-table"></i> Complete Database Records</h3>
+        <p class="card-subtitle">Showing all verified opportunities loaded in GCOEK Scholarship Finder</p>
+      </div>
+      <div class="table-search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="datasetTableSearch" placeholder="Filter rows by name, country, or funder...">
+      </div>
+    </div>
+
+    <div class="results-table-wrapper">
+      <table class="results-table" id="datasetFullTable">
+        <thead>
+          <tr>
+            <th>Scholarship Name</th>
+            <th>Country</th>
+            <th>Funder</th>
+            <th>Degrees</th>
+            <th>Coverage</th>
+            <th>Est. Cost</th>
+            <th>Est. Support</th>
+            <th>Out-of-Pocket</th>
+            <th>Official Portal</th>
+          </tr>
+        </thead>
+        <tbody id="datasetFullTableBody">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
