@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
   {% block extra_head %}{% endblock %}
 </head>
@@ -31,11 +31,11 @@
     <div class="nav-container">
       <div class="nav-brand">
         <a href="/" class="brand-link">
-          <div class="brand-logo">
-            <i class="fa-solid fa-building-columns"></i>
+          <div class="brand-logo atlas-brand-logo">
+            <i class="fa-solid fa-compass"></i>
           </div>
           <div class="brand-text">
-            <span class="brand-name">GCOEK Scholarship Finder</span>
+            <span class="brand-name">The Scholar's Atlas</span>
             <span class="brand-sub">{{ COLLEGE_TAGLINE }}</span>
           </div>
         </a>
@@ -48,30 +48,38 @@
       <!-- Multi-Page Navigation Menu -->
       <nav class="main-nav-links" id="mainNavLinks">
         <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
-          <i class="fa-solid fa-magnifying-glass"></i> Directory
+          <i class="fa-solid fa-house"></i> Home
+        </a>
+        <a href="/explore" class="nav-item {% if request.path == '/explore' %}active{% endif %}">
+          <i class="fa-solid fa-compass"></i> Explore
+        </a>
+        <a href="/match" class="nav-item {% if request.path == '/match' %}active{% endif %}">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> AI Match
+        </a>
+        <a href="/deadlines" class="nav-item {% if request.path == '/deadlines' %}active{% endif %}">
+          <i class="fa-solid fa-calendar-days"></i> Deadlines
+        </a>
+        <a href="/tracker" class="nav-item {% if request.path == '/tracker' %}active{% endif %}">
+          <i class="fa-solid fa-bars-progress"></i> Tracker
         </a>
         <a href="/india" class="nav-item {% if request.path.startswith('/india') %}active{% endif %}">
-          <i class="fa-solid fa-landmark"></i> 🇮🇳 India & Caste Schemes ({{ INDIA_STATS.total_schemes }})
+          <i class="fa-solid fa-landmark"></i> 🇮🇳 India Schemes ({{ INDIA_STATS.total_schemes }})
         </a>
-        <a href="/countries" class="nav-item {% if request.path == '/countries' %}active{% endif %}">
-          <i class="fa-solid fa-globe"></i> By Country
-        </a>
-        <a href="/guide" class="nav-item {% if request.path == '/guide' %}active{% endif %}">
-          <i class="fa-solid fa-book-open"></i> GCOEK Guide
-        </a>
-        <a href="/dataset" class="nav-item {% if request.path == '/dataset' %}active{% endif %}">
-          <i class="fa-solid fa-database"></i> Dataset ({{ DATASET_STATS.total_scholarships }})
-        </a>
-        <a href="/advisor" class="nav-item {% if request.path == '/advisor' %}active{% endif %}">
-          <i class="fa-solid fa-user-graduate"></i> Advisor Desk
+        <a href="/profile" class="nav-item {% if request.path == '/profile' %}active{% endif %}">
+          <i class="fa-solid fa-id-card"></i> Passport
         </a>
       </nav>
 
-      <!-- Quick Dataset Indicator -->
+      <!-- Quick Actions -->
       <div class="nav-actions">
+        <button type="button" class="btn-cmd-palette" id="openCmdPaletteBtn" aria-label="Open search command palette" title="Press ⌘K or Ctrl+K">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span class="cmd-text">Search...</span>
+          <kbd class="cmd-kbd">⌘K</kbd>
+        </button>
         <a href="/dataset" class="dataset-quick-tag" title="View or Upload Dataset">
           <span class="pulse-dot"></span>
-          <span class="quick-count">{{ DATASET_STATS.total_scholarships }} Scholarships</span>
+          <span class="quick-count">{{ DATASET_STATS.total_scholarships }} Verified</span>
         </a>
       </div>
     </div>
@@ -88,42 +96,42 @@
       <div class="footer-top-row">
         <div class="footer-col footer-col-wide">
           <div class="footer-college-brand">
-            <div class="footer-logo"><i class="fa-solid fa-building-columns"></i></div>
+            <div class="footer-logo atlas-footer-logo"><i class="fa-solid fa-compass"></i></div>
             <div>
               <h3>{{ COLLEGE_NAME }}</h3>
               <p class="tagline-highlight">{{ COLLEGE_TAGLINE }}</p>
             </div>
           </div>
           <p class="footer-description">
-            Dedicated scholarship and higher education portal developed for students and alumni of Government College of Engineering, Kolhapur (GCOEK) to discover verified national and international funding opportunities for B.E., M.Tech, and Ph.D. studies worldwide.
+            The Scholar's Atlas is the official scholarship and higher education portal developed for students and alumni of Government College of Engineering, Kolhapur (GCOEK) to discover verified national and international funding opportunities for B.E., M.Tech, and Ph.D. studies worldwide.
           </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Atlas Discovery</h4>
+          <ul class="footer-links">
+            <li><a href="/explore">All Verified Scholarships</a></li>
+            <li><a href="/match">AI Match Wizard</a></li>
+            <li><a href="/deadlines">Deadline Radar</a></li>
+            <li><a href="/tracker">Application Tracker</a></li>
+            <li><a href="/india">🇮🇳 Indian Caste & Govt Schemes</a></li>
+            <li><a href="/profile">Student Scholar Passport</a></li>
+          </ul>
         </div>
 
         <div class="footer-col">
           <h4>Engineering Branches</h4>
           <ul class="footer-links">
-            <li><a href="/?q=Computer">Computer Science & Engineering</a></li>
-            <li><a href="/?q=Mechanical">Mechanical Engineering</a></li>
-            <li><a href="/?q=Civil">Civil Engineering</a></li>
-            <li><a href="/?q=Electrical">Electrical Engineering</a></li>
-            <li><a href="/?q=Electronics">Electronics & Telecommunication</a></li>
+            <li><a href="/explore?field=Computer">Computer Science & Engineering</a></li>
+            <li><a href="/explore?field=Mechanical">Mechanical Engineering</a></li>
+            <li><a href="/explore?field=Civil">Civil Engineering</a></li>
+            <li><a href="/explore?field=Electrical">Electrical Engineering</a></li>
+            <li><a href="/explore?field=Electronics">Electronics & Telecommunication</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h4>Portal Navigation</h4>
-          <ul class="footer-links">
-            <li><a href="/">International Directory</a></li>
-            <li><a href="/india">🇮🇳 Indian Caste & MahaDBT Schemes</a></li>
-            <li><a href="/countries">Browse By Country</a></li>
-            <li><a href="/guide">GCOEK Higher Studies Guide</a></li>
-            <li><a href="/dataset">Manage / Upload Dataset</a></li>
-            <li><a href="/advisor">AI Counseling Desk</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Institutional Address</h4>
+          <h4>Institutional Desk</h4>
           <div class="footer-address">
             <p><i class="fa-solid fa-location-dot"></i> Government College of Engineering, Kolhapur (GCOEK)</p>
             <p>Old Pune-Bangalore Road, Vidyanagar, Kolhapur, Maharashtra 416004, India</p>
@@ -138,6 +146,25 @@
       </div>
     </div>
   </footer>
+
+  <!-- Command Palette Modal (⌘K / Ctrl+K) -->
+  <div class="cmd-palette-backdrop" id="cmdPaletteModal" style="display: none;" role="dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="cmd-palette-modal">
+      <div class="cmd-palette-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="cmdPaletteInput" placeholder="Search scholarships, countries, deadines, or India schemes... (Press ESC to close)" autocomplete="off">
+        <button type="button" class="cmd-esc-key" id="closeCmdPaletteBtn">ESC</button>
+      </div>
+      <div class="cmd-palette-list" id="cmdPaletteList">
+        <!-- Results populated dynamically via JS -->
+      </div>
+      <div class="cmd-palette-footer">
+        <div class="cmd-hint-item"><kbd>↑</kbd><kbd>↓</kbd> Navigate</div>
+        <div class="cmd-hint-item"><kbd>↵</kbd> Select</div>
+        <div class="cmd-hint-item"><kbd>esc</kbd> Dismiss</div>
+      </div>
+    </div>
+  </div>
 
   <!-- Notification Toast Container -->
   <div class="toast-area" id="toastArea"></div>

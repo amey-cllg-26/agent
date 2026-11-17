@@ -1384,10 +1384,570 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================================================================
+  // THE SCHOLAR'S ATLAS - INTERACTIVE MODULES
+  // =========================================================================
+
+  // 1. Opportunity Globe Interactions
+  const globeSvg = document.getElementById("opportunityGlobeSvg");
+  const globeHoverCard = document.getElementById("globeHoverCard");
+  const hoverFlag = document.getElementById("hoverCardFlag");
+  const hoverCountry = document.getElementById("hoverCardCountry");
+  const hoverCount = document.getElementById("hoverCardCount");
+  const hoverAward = document.getElementById("hoverCardAward");
+  const countrySelect = document.getElementById("countrySelect");
+
+  if (globeSvg && globeHoverCard) {
+    const pins = globeSvg.querySelectorAll(".globe-pin-group");
+    pins.forEach(pin => {
+      pin.addEventListener("mouseenter", (e) => {
+        const country = pin.dataset.country || "International";
+        const flag = pin.dataset.flag || "🌐";
+        const count = pin.dataset.count || "1";
+        const award = pin.dataset.award || "Full Tuition + Living";
+
+        if (hoverFlag) hoverFlag.textContent = flag;
+        if (hoverCountry) hoverCountry.textContent = country;
+        if (hoverCount) hoverCount.textContent = count;
+        if (hoverAward) hoverAward.textContent = award;
+
+        // Position card relative to wrap
+        const rect = globeSvg.getBoundingClientRect();
+        const pinRect = pin.getBoundingClientRect();
+        const left = Math.min(rect.width - 200, Math.max(10, pinRect.left - rect.left - 40));
+        const top = Math.max(10, pinRect.top - rect.top - 90);
+
+        globeHoverCard.style.left = `${left}px`;
+        globeHoverCard.style.top = `${top}px`;
+        globeHoverCard.style.display = "block";
+      });
+
+      pin.addEventListener("mouseleave", () => {
+        globeHoverCard.style.display = "none";
+      });
+
+      pin.addEventListener("click", () => {
+        const country = pin.dataset.country;
+        if (countrySelect) {
+          // Find option matching country
+          for (let opt of countrySelect.options) {
+            if (opt.value.toLowerCase().includes(country.toLowerCase()) || country.toLowerCase().includes(opt.value.toLowerCase())) {
+              countrySelect.value = opt.value;
+              break;
+            }
+          }
+          countrySelect.dispatchEvent(new Event("change"));
+        }
+        const dir = document.getElementById("directorySection") || document.querySelector(".content-layout");
+        if (dir) dir.scrollIntoView({ behavior: "smooth" });
+      });
+    });
+  }
+
+  // 2. Command Palette (⌘K / Ctrl+K)
+  const cmdPaletteModal = document.getElementById("cmdPaletteModal");
+  const openCmdPaletteBtn = document.getElementById("openCmdPaletteBtn");
+  const closeCmdPaletteBtn = document.getElementById("closeCmdPaletteBtn");
+  const cmdPaletteInput = document.getElementById("cmdPaletteInput");
+  const cmdPaletteList = document.getElementById("cmdPaletteList");
+
+  let cachedScholarships = [];
+
+  async function ensureCachedScholarships() {
+    if (cachedScholarships.length === 0) {
+      try {
+        const res = await fetch("/api/scholarships");
+        const data = await res.json();
+        cachedScholarships = data.scholarships || [];
+      } catch (err) {
+        console.error("Failed to fetch scholarships for palette:", err);
+      }
+    }
+  }
+
+  function openCmdPalette() {
+    if (!cmdPaletteModal) return;
+    cmdPaletteModal.style.display = "flex";
+    if (cmdPaletteInput) {
+      cmdPaletteInput.value = "";
+      cmdPaletteInput.focus();
+    }
+    ensureCachedScholarships().then(() => renderCmdResults(""));
+  }
+
+  function closeCmdPalette() {
+    if (cmdPaletteModal) cmdPaletteModal.style.display = "none";
+  }
+
+  function renderCmdResults(query) {
+    if (!cmdPaletteList) return;
+    const q = (query || "").trim().toLowerCase();
+
+    // Default quick action destinations
+    const quickLinks = [
+      { title: "Explore All Scholarships", sub: "Split filter catalog with 50+ fellowships", url: "/explore", icon: "fa-compass" },
+      { title: "AI Match Wizard", sub: "6-step conversational questionnaire", url: "/match", icon: "fa-wand-magic-sparkles" },
+      { title: "Deadline Radar", sub: "Monthly calendar & .ics export", url: "/deadlines", icon: "fa-calendar-days" },
+      { title: "Application Kanban Tracker", sub: "Manage shortlisted and submitted programs", url: "/tracker", icon: "fa-bars-progress" },
+      { title: "🇮🇳 Indian Caste & MahaDBT Schemes", sub: "106 verified schemes for SC/ST/OBC/VJNT", url: "/india", icon: "fa-landmark" },
+      { title: "Scholar Passport & CGPA Converter", sub: "Automated Shivaji Univ / GCOEK conversion", url: "/profile", icon: "fa-id-card" }
+    ];
+
+    let filteredQuick = quickLinks.filter(item => !q || item.title.toLowerCase().includes(q) || item.sub.toLowerCase().includes(q));
+    let matchedScholarships = cachedScholarships.filter(s => {
+      if (!q) return true;
+      return (s.name || "").toLowerCase().includes(q) || (s.country || "").toLowerCase().includes(q) || (s.funder || "").toLowerCase().includes(q);
+    }).slice(0, 10);
+
+    let html = "";
+    if (filteredQuick.length > 0) {
+      html += `<div style="font-size: 0.72rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase; padding: 0.4rem 0.65rem;">Quick Navigation</div>`;
+      filteredQuick.forEach(item => {
+        html += `
+          <a href="${item.url}" class="cmd-item">
+            <div class="cmd-item-icon"><i class="fa-solid ${item.icon}"></i></div>
+            <div class="cmd-item-text">
+              <div class="cmd-item-title">${escapeHtml(item.title)}</div>
+              <div class="cmd-item-sub">${escapeHtml(item.sub)}</div>
+            </div>
+          </a>
+        `;
+      });
+    }
+
+    if (matchedScholarships.length > 0) {
+      html += `<div style="font-size: 0.72rem; font-weight: 700; color: var(--slate-400); text-transform: uppercase; padding: 0.65rem 0.65rem 0.4rem 0.65rem;">Verified Fellowships (${matchedScholarships.length})</div>`;
+      matchedScholarships.forEach(s => {
+        const slug = s.slug || (s.name || "").toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-");
+        html += `
+          <a href="/scholarships/${slug}" class="cmd-item">
+            <div class="cmd-item-icon" style="color: var(--atlas-gold);"><i class="fa-solid fa-award"></i></div>
+            <div class="cmd-item-text">
+              <div class="cmd-item-title">${escapeHtml(s.name)}</div>
+              <div class="cmd-item-sub">${escapeHtml(s.country)} • ${escapeHtml(s.funder || '')} • ${escapeHtml(s.deadline || '')}</div>
+            </div>
+          </a>
+        `;
+      });
+    }
+
+    if (!html) {
+      html = `<div style="padding: 1.5rem; text-align: center; color: var(--slate-500); font-size: 0.9rem;">No results found for "${escapeHtml(query)}"</div>`;
+    }
+
+    cmdPaletteList.innerHTML = html;
+  }
+
+  if (openCmdPaletteBtn) openCmdPaletteBtn.addEventListener("click", openCmdPalette);
+  if (closeCmdPaletteBtn) closeCmdPaletteBtn.addEventListener("click", closeCmdPalette);
+  if (cmdPaletteModal) {
+    cmdPaletteModal.addEventListener("click", (e) => {
+      if (e.target === cmdPaletteModal) closeCmdPalette();
+    });
+  }
+  if (cmdPaletteInput) {
+    cmdPaletteInput.addEventListener("input", (e) => {
+      renderCmdResults(e.target.value);
+    });
+  }
+
+  // 3. Hero Prompt Chips & Collections
+  document.querySelectorAll(".hero-prompt-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const q = chip.dataset.query;
+      const kw = document.getElementById("keywordSearchInput");
+      const btn = document.getElementById("mainSearchBtn");
+      if (kw && q) {
+        kw.value = q;
+        if (btn) btn.click();
+        const dir = document.getElementById("directorySection") || document.querySelector(".content-layout");
+        if (dir) dir.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+
+  document.querySelectorAll(".collection-tile").forEach(tile => {
+    tile.addEventListener("click", () => {
+      const col = tile.dataset.collection;
+      window.location.href = `/explore?collection=${encodeURIComponent(col)}`;
+    });
+  });
+
+  // 4. Dossier Page Tabs & Bookmarking
+  const dossierTabs = document.querySelectorAll(".dossier-tab");
+  dossierTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      dossierTabs.forEach(t => {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+
+      const tabId = tab.dataset.tab;
+      document.querySelectorAll(".dossier-tab-content").forEach(content => {
+        if (content.id === `tab-${tabId}`) {
+          content.style.display = "block";
+          content.classList.add("active");
+        } else {
+          content.style.display = "none";
+          content.classList.remove("active");
+        }
+      });
+    });
+  });
+
+  // Tracker LocalStorage Helpers
+  function getTrackerItems() {
+    try {
+      return JSON.parse(localStorage.getItem("gcoek_scholarship_tracker") || "[]");
+    } catch {
+      return [];
+    }
+  }
+
+  function saveTrackerItems(items) {
+    localStorage.setItem("gcoek_scholarship_tracker", JSON.stringify(items));
+    updateTrackerBadges();
+  }
+
+  function updateTrackerBadges() {
+    const items = getTrackerItems();
+    const countEl = document.getElementById("savedDeadlinesCount");
+    if (countEl) countEl.textContent = items.length;
+  }
+  updateTrackerBadges();
+
+  const dossierBookmarkBtn = document.getElementById("dossierBookmarkBtn");
+  if (dossierBookmarkBtn) {
+    dossierBookmarkBtn.addEventListener("click", () => {
+      const slug = dossierBookmarkBtn.dataset.slug;
+      const name = dossierBookmarkBtn.dataset.name;
+      const country = dossierBookmarkBtn.dataset.country;
+      const deadline = dossierBookmarkBtn.dataset.deadline;
+
+      let items = getTrackerItems();
+      const existing = items.find(i => i.slug === slug);
+      if (!existing) {
+        items.push({
+          slug,
+          name,
+          country,
+          deadline,
+          status: "bookmarked",
+          addedAt: new Date().toISOString()
+        });
+        saveTrackerItems(items);
+        showToast(`Saved "${name}" to Application Tracker!`, "success");
+        dossierBookmarkBtn.innerHTML = `<i class="fa-solid fa-check"></i> In Tracker`;
+      } else {
+        showToast(`Already saved in your Application Tracker.`, "info");
+      }
+    });
+  }
+
+  const dossierShareBtn = document.getElementById("dossierShareBtn");
+  if (dossierShareBtn) {
+    dossierShareBtn.addEventListener("click", () => {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          showToast("Dossier URL copied to clipboard!", "success");
+        });
+      } else {
+        showToast("Share link: " + window.location.href, "info");
+      }
+    });
+  }
+
+  // 5. Match Wizard Implementation
+  window.nextWizStep = function(step) {
+    for (let i = 1; i <= 6; i++) {
+      const pane = document.getElementById(`pane${i}`);
+      const lbl = document.getElementById(`stepLbl${i}`);
+      if (pane) pane.style.display = i === step ? "block" : "none";
+      if (lbl) {
+        if (i === step) lbl.classList.add("active");
+        else lbl.classList.remove("active");
+      }
+    }
+    const fill = document.getElementById("wizardProgressFill");
+    if (fill) fill.style.width = `${(step / 6) * 100}%`;
+    window.scrollTo({ top: 120, behavior: "smooth" });
+  };
+
+  const wizCgpaInput = document.getElementById("wizCgpa");
+  const wizCgpaEquiv = document.getElementById("wizCgpaEquiv");
+  if (wizCgpaInput && wizCgpaEquiv) {
+    wizCgpaInput.addEventListener("input", () => {
+      const val = parseFloat(wizCgpaInput.value) || 8.0;
+      const usEquiv = ((val / 10.0) * 4.0).toFixed(2);
+      wizCgpaEquiv.textContent = `Approx. ~${usEquiv} / 4.0 US & Bologna ECTS Grade equivalent`;
+    });
+  }
+
+  window.submitWizard = async function() {
+    const btn = document.getElementById("generateDossierBtn");
+    if (btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Analyzing GCOEK Eligibility...`;
+
+    const branch = document.getElementById("wizBranch")?.value || "Computer Science";
+    const cgpa = parseFloat(document.getElementById("wizCgpa")?.value) || 8.0;
+    const degreeEl = document.querySelector("input[name='wiz_degree']:checked");
+    const degree = degreeEl ? degreeEl.value : "Master";
+    const destEls = document.querySelectorAll("input[name='wiz_dest']:checked");
+    const destinations = Array.from(destEls).map(el => el.value);
+    const fundingEl = document.querySelector("input[name='wiz_funding']:checked");
+    const needFull = fundingEl ? fundingEl.value === "100" : true;
+    const english = document.getElementById("wizEnglish")?.value || "GCOEK MOI";
+    const category = document.getElementById("wizCategory")?.value || "General";
+
+    try {
+      const res = await fetch("/api/match-wizard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branch,
+          cgpa,
+          scale: 10.0,
+          target_degree: degree,
+          destinations,
+          need_full_funding: needFull,
+          test_status: english,
+          category
+        })
+      });
+      const data = await res.json();
+      renderWizardResults(data);
+    } catch (err) {
+      console.error("Match wizard failed:", err);
+      showToast("Unable to generate dossier. Please try again.", "error");
+    } finally {
+      if (btn) btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Generate My Scholarship Dossier &rarr;`;
+    }
+  };
+
+  function renderWizardResults(data) {
+    const wrap = document.getElementById("dossierResultsWrap");
+    const list = document.getElementById("dossierCardsList");
+    const card = document.getElementById("wizardCard");
+    const summary = document.getElementById("dossierProfileSummary");
+
+    if (!wrap || !list) return;
+
+    if (summary && data.student_profile) {
+      summary.textContent = `Based on your ${data.student_profile.branch} background and ${data.student_profile.cgpa} CGPA, our matching algorithm evaluated ${data.total_evaluated} programs and identified your Top ${data.top_matches.length} high-yield opportunities.`;
+    }
+
+    let html = "";
+    (data.top_matches || []).forEach((m, idx) => {
+      const s = m.scholarship;
+      html += `
+        <div class="scholarship-card atlas-card" style="margin-bottom: 1.5rem;">
+          <div class="card-header-row">
+            <div class="card-pills">
+              <span class="badge-country">${s.flag} ${s.country}</span>
+              <span class="badge-coverage-full">Top #${idx + 1} Recommendation</span>
+            </div>
+            <span class="badge-fit badge-fit-target">${m.fit_score}% Fit Score</span>
+          </div>
+
+          <h3 class="card-title">${escapeHtml(s.name)}</h3>
+          <div class="card-funder"><i class="fa-solid fa-building-columns"></i> ${escapeHtml(s.funder)} • Award: <strong style="color: #b45309;">${escapeHtml(s.award_amount)}</strong></div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; background: var(--slate-50); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div>
+              <strong style="color: #15803d; font-size: 0.85rem;"><i class="fa-solid fa-circle-check"></i> Why You'll Win:</strong>
+              <ul style="font-size: 0.8rem; margin-top: 0.35rem; padding-left: 1.15rem; color: var(--slate-700);">
+                ${m.why_you_will_win.map(r => `<li>${escapeHtml(r)}</li>`).join("")}
+              </ul>
+            </div>
+            <div>
+              <strong style="color: #b45309; font-size: 0.85rem;"><i class="fa-solid fa-triangle-exclamation"></i> Points to Watch:</strong>
+              <ul style="font-size: 0.8rem; margin-top: 0.35rem; padding-left: 1.15rem; color: var(--slate-700);">
+                ${m.red_flags.map(r => `<li>${escapeHtml(r)}</li>`).join("")}
+              </ul>
+            </div>
+          </div>
+
+          <div style="font-size: 0.8rem; color: var(--slate-600); margin-bottom: 0.85rem;">
+            <strong>Immediate Action Plan:</strong> ${escapeHtml(m.action_plan)}
+          </div>
+
+          <div class="card-actions">
+            <a href="/scholarships/${s.slug}" class="btn btn-primary btn-sm">Full Dossier & Timeline &rarr;</a>
+            <a href="${s.official_website}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm verify-official-link">
+              Verify Official Portal &rarr;
+            </a>
+          </div>
+        </div>
+      `;
+    });
+
+    list.innerHTML = html;
+    if (card) card.style.display = "none";
+    wrap.style.display = "block";
+    wrap.scrollIntoView({ behavior: "smooth" });
+  }
+
+  // 6. Kanban Board Execution (if on /tracker)
+  const kanbanBoard = document.getElementById("kanbanBoard");
+  if (kanbanBoard) {
+    function loadAndRenderKanban() {
+      let items = getTrackerItems();
+      if (items.length === 0) {
+        // Pre-populate with two sample high-yield bookmarks for GCOEK students
+        items = [
+          { slug: "daad-development-related-postgraduate-courses-epos", name: "DAAD EPOS Scholarships", country: "Germany", deadline: "31 Oct / 30 Nov", status: "bookmarked" },
+          { slug: "swiss-government-excellence-scholarships", name: "Swiss Government Excellence Scholarships", country: "Switzerland", deadline: "12 Nov annually", status: "preparing" }
+        ];
+        saveTrackerItems(items);
+      }
+
+      const statuses = ["bookmarked", "preparing", "submitted", "interview", "awarded"];
+      statuses.forEach(st => {
+        const dropzone = document.getElementById(`dropzone${st.charAt(0).toUpperCase() + st.slice(1)}`);
+        const count = document.getElementById(`count${st.charAt(0).toUpperCase() + st.slice(1)}`);
+        const filtered = items.filter(i => i.status === st);
+        if (count) count.textContent = filtered.length;
+        if (!dropzone) return;
+
+        dropzone.innerHTML = "";
+        filtered.forEach(item => {
+          const card = document.createElement("div");
+          card.className = "kanban-item-card";
+          card.draggable = true;
+          card.innerHTML = `
+            <div class="kanban-card-title">${escapeHtml(item.name)}</div>
+            <div class="kanban-meta-row">
+              <span>${escapeHtml(item.country)}</span>
+              <span>${escapeHtml(item.deadline)}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; border-top: 1px solid var(--slate-100); padding-top: 0.35rem;">
+              <a href="/scholarships/${item.slug}" style="font-size: 0.72rem; color: var(--primary); font-weight: 600;">Dossier &rarr;</a>
+              <button type="button" class="btn-text kanban-remove-btn" style="color: var(--danger); font-size: 0.72rem;">Remove</button>
+            </div>
+          `;
+
+          card.querySelector(".kanban-remove-btn").addEventListener("click", () => {
+            items = items.filter(i => i.slug !== item.slug);
+            saveTrackerItems(items);
+            loadAndRenderKanban();
+          });
+
+          // Drag Events
+          card.addEventListener("dragstart", (e) => {
+            e.dataTransfer.setData("text/plain", item.slug);
+          });
+
+          dropzone.appendChild(card);
+        });
+      });
+    }
+
+    // Set up drag drop listeners on dropzones
+    document.querySelectorAll(".kanban-column").forEach(col => {
+      const st = col.dataset.status;
+      col.addEventListener("dragover", (e) => e.preventDefault());
+      col.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const slug = e.dataTransfer.getData("text/plain");
+        let items = getTrackerItems();
+        const target = items.find(i => i.slug === slug);
+        if (target && target.status !== st) {
+          target.status = st;
+          saveTrackerItems(items);
+          loadAndRenderKanban();
+        }
+      });
+    });
+
+    const exportCsvBtn = document.getElementById("exportTrackerCsvBtn");
+    if (exportCsvBtn) {
+      exportCsvBtn.addEventListener("click", () => {
+        const items = getTrackerItems();
+        let csv = "Name,Country,Status,Deadline,Slug\n";
+        items.forEach(i => {
+          csv += `"${i.name}","${i.country}","${i.status}","${i.deadline}","${i.slug}"\n`;
+        });
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "gcoek_application_tracker.csv";
+        a.click();
+      });
+    }
+
+    const exportJsonBtn = document.getElementById("exportTrackerJsonBtn");
+    if (exportJsonBtn) {
+      exportJsonBtn.addEventListener("click", () => {
+        const items = getTrackerItems();
+        const blob = new Blob([JSON.stringify(items, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "gcoek_tracker_backup.json";
+        a.click();
+      });
+    }
+
+    loadAndRenderKanban();
+  }
+
+  // 7. Profile Passport CGPA Converter & Readiness Ring
+  const profileCgpa = document.getElementById("profileCgpa");
+  const convUsScale = document.getElementById("convUsScale");
+  const convGermanScale = document.getElementById("convGermanScale");
+  const convPct = document.getElementById("convPct");
+  const readinessCircle = document.getElementById("readinessCircle");
+  const readinessVal = document.getElementById("readinessVal");
+
+  if (profileCgpa) {
+    function updateCgpaConversions() {
+      const val = parseFloat(profileCgpa.value) || 8.4;
+      const us = ((val / 10.0) * 4.0).toFixed(2);
+      // Bavarian Formula: 1 + 3 * (Nmax - Nd) / (Nmax - Nmin) where Nmax=10, Nmin=4
+      const german = Math.max(1.0, Math.min(4.0, (1.0 + 3.0 * ((10.0 - val) / 6.0)))).toFixed(1);
+      const germanText = german <= 1.5 ? `${german} (Sehr Gut)` : (german <= 2.5 ? `${german} (Gut)` : `${german} (Befriedigend)`);
+      const pct = Math.round((val - 0.75) * 10.0 * 10) / 10;
+
+      if (convUsScale) convUsScale.textContent = `${us} / 4.0`;
+      if (convGermanScale) convGermanScale.textContent = germanText;
+      if (convPct) convPct.textContent = `${pct}%`;
+    }
+
+    profileCgpa.addEventListener("input", updateCgpaConversions);
+    updateCgpaConversions();
+  }
+
+  const lockerChecks = document.querySelectorAll(".locker-check");
+  if (lockerChecks.length > 0 && readinessCircle && readinessVal) {
+    function updateReadiness() {
+      const total = lockerChecks.length;
+      let checked = 0;
+      lockerChecks.forEach(c => { if (c.checked) checked++; });
+      const pct = Math.round((checked / total) * 100);
+      readinessVal.textContent = `${pct}%`;
+      // Circumference for r=38 is 2 * PI * 38 = 238.76
+      const offset = 238 - (238 * pct / 100);
+      readinessCircle.style.strokeDashoffset = `${offset}`;
+    }
+
+    lockerChecks.forEach(c => c.addEventListener("change", updateReadiness));
+    updateReadiness();
+  }
+
+  // =========================================================================
   // GLOBAL KEYBOARD SHORTCUTS
   // =========================================================================
   document.addEventListener("keydown", (e) => {
+    // Open Palette with ⌘K or Ctrl+K
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      openCmdPalette();
+      return;
+    }
+
     if (e.key === "Escape") {
+      closeCmdPalette();
       const detailModal = document.getElementById("detailModal");
       if (detailModal) detailModal.classList.remove("active");
       const indiaDocModal = document.getElementById("indiaDocModal");
@@ -1395,4 +1955,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
 

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Verified Engineering Scholarships | The Scholar's Atlas - GCOEK{% endblock %}
+
+{% block content %}
+<div class="page-container explore-page-container">
+
+  <!-- Explore Header Banner -->
+  <section class="explore-hero-banner">
+    <div class="explore-hero-content">
+      <div class="hero-college-badge">
+        <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
+      </div>
+      <h1 class="explore-page-title">Explore Engineering <span class="gold-gradient-text">Fellowships & Grants</span></h1>
+      <p class="explore-page-sub">
+        Centralized discovery catalog across {{ DATASET_STATS.countries_count }} countries. Filter by degree, discipline, CGPA threshold, and full-ride living allowances.
+      </p>
+    </div>
+  </section>
+
+  <!-- Split Screen Explorer Layout -->
+  <div class="explore-layout">
+
+    <!-- Left Sticky Filter Rail -->
+    <aside class="explore-filter-rail">
+      <div class="filter-card">
+        <div class="filter-card-header">
+          <h3><i class="fa-solid fa-sliders"></i> Filter Opportunities</h3>
+          <button type="button" class="btn-text" id="exploreResetBtn">Reset All</button>
+        </div>
+
+        <form id="exploreFilterForm" onsubmit="return false;">
+          <!-- Keyword Search -->
+          <div class="filter-group">
+            <label class="filter-label" for="exploreSearchInput">Keyword / Program</label>
+            <div class="search-bar-input compact-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="exploreSearchInput" placeholder="e.g. DAAD, ETH Zurich, Robotics..." autocomplete="off">
+            </div>
+          </div>
+
+          <!-- Degree Level -->
+          <div class="filter-group">
+            <label class="filter-label">Degree Level</label>
+            <div class="segmented-control">
+              <label class="segment">
+                <input type="radio" name="explore_degree" value="all" checked>
+                <span>All</span>
+              </label>
+              <label class="segment">
+                <input type="radio" name="explore_degree" value="master">
+                <span>Master</span>
+              </label>
+              <label class="segment">
+                <input type="radio" name="explore_degree" value="phd">
+                <span>Ph.D.</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Engineering Field / Discipline -->
+          <div class="filter-group">
+            <label class="filter-label">Engineering Discipline</label>
+            <div class="discipline-tag-selector" id="fieldTagSelector">
+              <button type="button" class="discipline-tag active" data-field="all">All Fields</button>
+              <button type="button" class="discipline-tag" data-field="Computer">CS & IT</button>
+              <button type="button" class="discipline-tag" data-field="Mechanical">Mechanical</button>
+              <button type="button" class="discipline-tag" data-field="Electrical">Electrical</button>
+              <button type="button" class="discipline-tag" data-field="Civil">Civil</button>
+              <button type="button" class="discipline-tag" data-field="AI">AI & Data</button>
+            </div>
+          </div>
+
+          <!-- Destination Country -->
+          <div class="filter-group">
+            <label class="filter-label" for="exploreCountrySelect">Destination Nation</label>
+            <select id="exploreCountrySelect" class="form-control">
+              <option value="all">All Countries Worldwide ({{ DATASET_STATS.countries_count }})</option>
+              {% for c in countries %}
+              <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Funding Type -->
+          <div class="filter-group">
+            <label class="filter-label">Coverage & Stipend</label>
+            <select id="exploreCoverageSelect" class="form-control">
+              <option value="all">All Funding Levels</option>
+              <option value="full">100% Fully Funded (Tuition + Living)</option>
+              <option value="partial">Partial Tuition Waiver / Grant</option>
+            </select>
+          </div>
+
+          <!-- Minimum CGPA Slider -->
+          <div class="filter-group">
+            <div class="filter-label-row">
+              <label class="filter-label" for="exploreCgpaRange">Minimum CGPA (GCOEK)</label>
+              <span class="budget-badge" id="exploreCgpaLabel">7.0 / 10.0</span>
+            </div>
+            <input type="range" id="exploreCgpaRange" min="5.0" max="10.0" step="0.1" value="7.0" class="range-slider">
+            <span class="filter-help">Approx. 2.80 / 4.0 US Scale equivalent</span>
+          </div>
+
+          <!-- Curated Collection Filter -->
+          <div class="filter-group">
+            <label class="filter-label">Curated Collection</label>
+            <select id="exploreCollectionSelect" class="form-control">
+              <option value="all">All Collections</option>
+              {% for col in collections %}
+              <option value="{{ col.filter }}">{{ col.title }} ({{ col.count }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- India Schemes Quick Access Link -->
+          <div class="filter-callout-box">
+            <i class="fa-solid fa-landmark"></i>
+            <div>
+              <strong>Looking for Indian Caste Schemes?</strong>
+              <p>Explore 106 verified MahaDBT & Central Government schemes on our India Portal.</p>
+              <a href="/india" class="btn btn-secondary btn-sm" style="margin-top: 0.35rem; width: 100%;">Go to India Portal &rarr;</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Right Explorer Results Stream -->
+    <main class="explore-results-stream">
+
+      <!-- Stream Controls Bar -->
+      <div class="results-toolbar">
+        <div class="toolbar-left">
+          <div class="results-count-wrap">
+            <span class="results-num" id="exploreResultsCount">{{ scholarships|length }}</span>
+            <span class="results-label">Opportunities Found</span>
+          </div>
+          <div class="active-filters-chips" id="exploreActiveChips"></div>
+        </div>
+
+        <div class="toolbar-right">
+          <div class="sort-control-group">
+            <label for="exploreSortSelect" class="sort-control-label"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort:</label>
+            <select id="exploreSortSelect" class="form-control select-compact sort-select" aria-label="Sort scholarships">
+              <option value="match" selected>Atlas Fit Score</option>
+              <option value="urgency">Deadline Urgency</option>
+              <option value="support_desc">Support Amount</option>
+              <option value="name_asc">Alphabetical (A–Z)</option>
+            </select>
+          </div>
+
+          <div class="view-toggle">
+            <button class="view-btn active" id="exploreViewGridBtn" title="Masonry Grid View">
+              <i class="fa-solid fa-table-cells-large"></i>
+            </button>
+            <button class="view-btn" id="exploreViewTableBtn" title="Compact Table View">
+              <i class="fa-solid fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Masonry Grid View Container -->
+      <div id="exploreCardsGrid" class="scholarships-grid">
+        {% for s in scholarships %}
+        <div class="scholarship-card atlas-card" data-slug="{{ s.slug }}" data-country="{{ s.country }}" data-coverage="{{ s.coverage_level }}" data-degree="{{ s.degree_levels }}" data-collections="{{ s.collections|join(',') }}">
+          <div class="card-header-row">
+            <div class="card-pills">
+              <span class="badge-country">{{ s.flag }} {{ s.country }}</span>
+              {% if s.coverage_level == 'full' %}
+              <span class="badge-coverage-full">Fully Funded</span>
+              {% else %}
+              <span class="badge-coverage-partial">Partial Grant</span>
+              {% endif %}
+            </div>
+            <div class="card-meta-right">
+              <span class="badge-fit badge-fit-target">{{ s.fit_score }}% Match</span>
+              <button type="button" class="btn-bookmark-card" data-slug="{{ s.slug }}" title="Bookmark to Tracker" aria-label="Bookmark">
+                <i class="fa-regular fa-bookmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <h3 class="card-title">{{ s.name }}</h3>
+          <div class="card-funder"><i class="fa-solid fa-building-columns"></i> {{ s.funder }}</div>
+
+          <div class="card-financials atlas-financial-pill">
+            <div class="financial-metric">
+              <span class="metric-label">Award Value:</span>
+              <span class="metric-amount amount-gold">{{ s.award_amount }}</span>
+            </div>
+            <p class="financial-desc">{{ s.coverage_summary }}</p>
+          </div>
+
+          <ul class="card-criteria">
+            <li>
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span><strong>Academics:</strong> {{ s.academic_note }}</span>
+            </li>
+            <li>
+              <i class="fa-solid fa-calendar"></i>
+              <span><strong>Deadline:</strong> {{ s.deadline }}</span>
+              <span class="urgency-pill urgency-{{ s.urgency_label|lower|replace(' ', '-') }}" style="color: {{ s.urgency_color }};">
+                <i class="fa-solid fa-circle-dot"></i> {{ s.urgency_label }}
+              </span>
+            </li>
+            <li>
+              <i class="fa-solid fa-passport"></i>
+              <span><strong>Eligibility:</strong> {{ s.eligible_nationalities }}</span>
+            </li>
+          </ul>
+
+          <div class="card-footer-meta">
+            <span class="card-verified-date"><i class="fa-solid fa-shield-check"></i> Last verified: {{ s.last_verified }}</span>
+          </div>
+
+          <div class="card-actions">
+            <a href="/scholarships/{{ s.slug }}" class="btn btn-primary btn-sm">View Dossier &rarr;</a>
+            <a href="{{ s.official_website }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm verify-official-link">
+              Verify Official &rarr;
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Table View Container -->
+      <div id="exploreTableContainer" class="results-table-wrapper" style="display: none;">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Scholarship</th>
+              <th>Country</th>
+              <th>Degree</th>
+              <th>Award</th>
+              <th>Fit</th>
+              <th>Deadline</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="exploreTableBody">
+            {% for s in scholarships %}
+            <tr>
+              <td>
+                <strong>{{ s.name }}</strong>
+                <div class="table-subtext">{{ s.funder }}</div>
+              </td>
+              <td>{{ s.flag }} {{ s.country }}</td>
+              <td>{{ s.degree_levels }}</td>
+              <td><span class="table-award-badge">{{ s.award_amount }}</span></td>
+              <td><span class="badge-fit badge-fit-target">{{ s.fit_score }}%</span></td>
+              <td>{{ s.deadline }}</td>
+              <td>
+                <div style="display: flex; gap: 0.35rem;">
+                  <a href="/scholarships/{{ s.slug }}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;">Dossier</a>
+                  <a href="{{ s.official_website }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.78rem;">Verify &rarr;</a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="exploreEmptyState" class="empty-results" style="display: none;">
+        <div class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <h3>No matching scholarships found</h3>
+        <p>Try resetting discipline filters, widening your CGPA threshold, or choosing "All Countries".</p>
+        <button type="button" class="btn btn-secondary btn-sm" id="exploreEmptyResetBtn">Reset Filters</button>
+      </div>
+
+    </main>
+  </div>
+</div>
+{% endblock %}

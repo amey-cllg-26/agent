@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}AI Scholarship Match Wizard | The Scholar's Atlas - GCOEK{% endblock %}
+
+{% block content %}
+<div class="page-container wizard-page-container">
+
+  <!-- Wizard Header -->
+  <header class="wizard-header">
+    <div class="hero-college-badge">
+      <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
+    </div>
+    <h1 class="wizard-title">AI Scholarship <span class="gold-gradient-text">Match Wizard</span></h1>
+    <p class="wizard-sub">
+      Answer 6 quick questions about your GCOEK academic trajectory. Our engine evaluates your competitive profile against 50+ global fellowships and 106 Indian schemes to build your personalized Dossier.
+    </p>
+
+    <!-- Progress Indicator -->
+    <div class="wizard-progress-bar-wrap">
+      <div class="wizard-progress-fill" id="wizardProgressFill" style="width: 16.6%;"></div>
+    </div>
+    <div class="wizard-step-labels">
+      <span class="step-lbl active" id="stepLbl1">1. Education</span>
+      <span class="step-lbl" id="stepLbl2">2. Degree</span>
+      <span class="step-lbl" id="stepLbl3">3. Destinations</span>
+      <span class="step-lbl" id="stepLbl4">4. Funding</span>
+      <span class="step-lbl" id="stepLbl5">5. Tests</span>
+      <span class="step-lbl" id="stepLbl6">6. Category</span>
+    </div>
+  </header>
+
+  <!-- Interactive Wizard Questionnaire Container -->
+  <div class="wizard-card-wrap">
+    <div class="card wizard-card" id="wizardCard">
+
+      <!-- Step 1: Current Education -->
+      <div class="wizard-step-pane active" id="pane1">
+        <div class="step-pane-header">
+          <span class="step-num-pill">Step 1 of 6</span>
+          <h2>Tell us about your current academic background at GCOEK</h2>
+          <p>We tailor eligibility rules and transcript conversion formulas specifically for our institution.</p>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Institution</label>
+            <input type="text" class="form-control" value="Government College of Engineering, Kolhapur (GCOEK)" readonly style="background: var(--slate-100); font-weight: 600;">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wizBranch">Engineering Department / Branch</label>
+            <select id="wizBranch" class="form-control">
+              <option value="Computer Science">Computer Science & Engineering</option>
+              <option value="Mechanical">Mechanical Engineering</option>
+              <option value="Electrical">Electrical Engineering</option>
+              <option value="Civil">Civil Engineering</option>
+              <option value="Electronics">Electronics & Telecommunication</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label class="form-label" for="wizYear">Current Academic Standing</label>
+            <select id="wizYear" class="form-control">
+              <option value="2nd Year">2nd Year Undergraduate (B.E.)</option>
+              <option value="3rd Year" selected>3rd Year Undergraduate (B.E.)</option>
+              <option value="Final Year">Final Year Undergraduate (B.E.)</option>
+              <option value="Alumni">Recent Graduate / Alumni</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wizCgpa">Current CGPA (10-Point Scale)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="wizCgpa" class="form-control" step="0.05" min="4.0" max="10.0" value="8.40" placeholder="8.40">
+              <span class="input-suffix-pill">/ 10.0</span>
+            </div>
+            <span class="form-help-text" id="wizCgpaEquiv">Approx. ~3.36 / 4.0 US & Bologna ECTS Grade A equivalent</span>
+          </div>
+        </div>
+
+        <div class="wizard-nav-row">
+          <div></div>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextWizStep(2)">
+            Next: Target Degree &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Target Degree -->
+      <div class="wizard-step-pane" id="pane2" style="display: none;">
+        <div class="step-pane-header">
+          <span class="step-num-pill">Step 2 of 6</span>
+          <h2>What level of higher study are you aiming for?</h2>
+          <p>Select your intended postgraduate qualification.</p>
+        </div>
+
+        <div class="option-cards-grid">
+          <label class="option-card">
+            <input type="radio" name="wiz_degree" value="Master" checked>
+            <div class="option-card-body">
+              <div class="option-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+              <h3>Master's Degree (M.S. / M.Tech / M.Sc)</h3>
+              <p>1–2 years taught or research curriculum with university funding or government stipends.</p>
+            </div>
+          </label>
+          <label class="option-card">
+            <input type="radio" name="wiz_degree" value="PhD">
+            <div class="option-card-body">
+              <div class="option-icon"><i class="fa-solid fa-atom"></i></div>
+              <h3>Doctoral Fellowship (Ph.D.)</h3>
+              <p>3–5 years fully funded doctoral research with full salary/stipend and tuition waiver.</p>
+            </div>
+          </label>
+          <label class="option-card">
+            <input type="radio" name="wiz_degree" value="Bachelor">
+            <div class="option-card-body">
+              <div class="option-icon"><i class="fa-solid fa-compass"></i></div>
+              <h3>Undergraduate Research / Exchange</h3>
+              <p>Short-term summer internships (DAAD WISE, SNU-RISE, MITACS Globalink).</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="wizard-nav-row">
+          <button type="button" class="btn btn-secondary btn-lg" onclick="nextWizStep(1)">&larr; Back</button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextWizStep(3)">Next: Destinations &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Destinations -->
+      <div class="wizard-step-pane" id="pane3" style="display: none;">
+        <div class="step-pane-header">
+          <span class="step-num-pill">Step 3 of 6</span>
+          <h2>Where do you envision yourself studying?</h2>
+          <p>Select all regions and countries that interest you.</p>
+        </div>
+
+        <div class="destination-chips-grid">
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="Germany" checked> <span>🇩🇪 Germany (DAAD)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="Switzerland" checked> <span>🇨🇭 Switzerland (ETH / EPFL)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="United Kingdom" checked> <span>🇬🇧 United Kingdom (Chevening / Gates)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="USA" checked> <span>🇺🇸 United States (Fulbright)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="Canada"> <span>🇨🇦 Canada (Vanier / MITACS)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="France"> <span>🇫🇷 France (Eiffel Excellence)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="Japan"> <span>🇯🇵 Japan (MEXT)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="South Korea"> <span>🇰🇷 South Korea (GKS)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="Singapore"> <span>🇸🇬 Singapore (SINGA)</span></label>
+          <label class="dest-chip"><input type="checkbox" name="wiz_dest" value="Australia"> <span>🇦🇺 Australia (RTP Awards)</span></label>
+        </div>
+
+        <div class="wizard-nav-row">
+          <button type="button" class="btn btn-secondary btn-lg" onclick="nextWizStep(2)">&larr; Back</button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextWizStep(4)">Next: Financial Need &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Financial Need -->
+      <div class="wizard-step-pane" id="pane4" style="display: none;">
+        <div class="step-pane-header">
+          <span class="step-num-pill">Step 4 of 6</span>
+          <h2>What level of financial support is non-negotiable?</h2>
+          <p>We filter out opportunities that require personal or family financing.</p>
+        </div>
+
+        <div class="option-cards-grid">
+          <label class="option-card">
+            <input type="radio" name="wiz_funding" value="100" checked>
+            <div class="option-card-body">
+              <div class="option-icon"><i class="fa-solid fa-crown gold-icon"></i></div>
+              <h3>100% Full Ride (Zero Out-of-Pocket)</h3>
+              <p>I require 100% tuition waiver plus monthly living stipend, health insurance, and airfare support.</p>
+            </div>
+          </label>
+          <label class="option-card">
+            <input type="radio" name="wiz_funding" value="partial">
+            <div class="option-card-body">
+              <div class="option-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+              <h3>Partial Funding / Tuition Waiver is OK</h3>
+              <p>I can cover part of my living expenses (up to $5,000–$10,000/yr) if tuition is heavily subsidised.</p>
+            </div>
+          </label>
+        </div>
+
+        <div class="wizard-nav-row">
+          <button type="button" class="btn btn-secondary btn-lg" onclick="nextWizStep(3)">&larr; Back</button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextWizStep(5)">Next: Standardized Tests &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Test Readiness -->
+      <div class="wizard-step-pane" id="pane5" style="display: none;">
+        <div class="step-pane-header">
+          <span class="step-num-pill">Step 5 of 6</span>
+          <h2>Where do you stand with international tests?</h2>
+          <p>Don't worry — dozens of top European fellowships waive GRE and IELTS!</p>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="wizEnglish">English Proficiency Status</label>
+            <select id="wizEnglish" class="form-control">
+              <option value="IELTS Done">IELTS Taken (Score &ge; 6.5)</option>
+              <option value="TOEFL Done">TOEFL Taken (Score &ge; 90)</option>
+              <option value="GCOEK MOI" selected>Planning to use GCOEK English Medium Certificate</option>
+              <option value="Planning to Take">Planning to take within 3 months</option>
+              <option value="None">Prefer scholarships with NO language test</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="wizGre">GRE General Test Status</label>
+            <select id="wizGre" class="form-control">
+              <option value="None" selected>Haven't taken GRE (Prefer No-GRE programs)</option>
+              <option value="GRE Done">GRE Taken (Score &ge; 315)</option>
+              <option value="Planning">Planning to take GRE</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="wizard-nav-row">
+          <button type="button" class="btn btn-secondary btn-lg" onclick="nextWizStep(4)">&larr; Back</button>
+          <button type="button" class="btn btn-primary btn-lg" onclick="nextWizStep(6)">Next: Categories &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Step 6: Special Categories & Generation -->
+      <div class="wizard-step-pane" id="pane6" style="display: none;">
+        <div class="step-pane-header">
+          <span class="step-num-pill">Step 6 of 6</span>
+          <h2>Targeted schemes, reservations, and affirmative grants</h2>
+          <p>Select any categories to cross-match with Indian MahaDBT & Central government quotas.</p>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="wizCategory">Social Category / Caste Group</label>
+            <select id="wizCategory" class="form-control">
+              <option value="General" selected>Open / General Category</option>
+              <option value="OBC">Other Backward Class (OBC)</option>
+              <option value="SC">Scheduled Caste (SC)</option>
+              <option value="ST">Scheduled Tribe (ST)</option>
+              <option value="VJNT">VJNT / Denotified Tribes</option>
+              <option value="SBC">Special Backward Category (SBC)</option>
+              <option value="EWS">Economically Weaker Section (EWS / SEBC)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Identifiers</label>
+            <div style="display: flex; flex-direction: column; gap: 0.45rem; padding-top: 0.35rem;">
+              <label class="checkbox-label"><input type="checkbox" id="wizWomenInStem"> <span>Woman in Engineering / STEM</span></label>
+              <label class="checkbox-label"><input type="checkbox" id="wizFirstGen"> <span>First-Generation College Student</span></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-nav-row">
+          <button type="button" class="btn btn-secondary btn-lg" onclick="nextWizStep(5)">&larr; Back</button>
+          <button type="button" class="btn btn-primary btn-lg" id="generateDossierBtn" onclick="submitWizard()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate My Scholarship Dossier &rarr;
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Generated Dossier Modal / Container -->
+  <div class="dossier-results-wrap" id="dossierResultsWrap" style="display: none;">
+    <div class="dossier-success-banner">
+      <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <div>
+        <h2>Your Personalized GCOEK Scholarship Dossier is Ready!</h2>
+        <p id="dossierProfileSummary">Based on your Computer Science background and 8.40 CGPA, our matching algorithm identified your Top 5 high-yield opportunities.</p>
+      </div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="window.print();">
+        <i class="fa-solid fa-print"></i> Print Dossier
+      </button>
+    </div>
+
+    <div class="dossier-cards-list" id="dossierCardsList">
+      <!-- Populated via JavaScript -->
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Deadline Radar & Monthly Calendar | The Scholar's Atlas - GCOEK{% endblock %}
+
+{% block content %}
+<div class="page-container deadlines-page-container">
+
+  <!-- Radar Hero Header -->
+  <header class="deadlines-hero-banner">
+    <div class="hero-college-badge">
+      <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
+    </div>
+    <div class="deadlines-header-row">
+      <div>
+        <h1 class="deadlines-title">Scholarship <span class="gold-gradient-text">Deadline Radar</span></h1>
+        <p class="deadlines-sub">
+          Live tracking calendar for 2026–2027 international intake rounds. Color-coded by urgency to keep your document preparation on schedule.
+        </p>
+      </div>
+      <div class="deadlines-cta-group">
+        <a href="/api/calendar/export.ics" class="btn btn-primary btn-sm" download="gcoek_scholarship_deadlines.ics">
+          <i class="fa-solid fa-calendar-arrow-down"></i> Export to Calendar (.ics)
+        </a>
+      </div>
+    </div>
+
+    <!-- Urgency Legend Ribbon -->
+    <div class="radar-legend-bar">
+      <div class="legend-item"><span class="legend-dot dot-red"></span> <strong>Closing Imminently:</strong> &lt; 14 Days</div>
+      <div class="legend-item"><span class="legend-dot dot-yellow"></span> <strong>Preparation Window:</strong> 15 – 45 Days</div>
+      <div class="legend-item"><span class="legend-dot dot-green"></span> <strong>Open / Annual Call:</strong> &gt; 45 Days</div>
+    </div>
+  </header>
+
+  <!-- Filter & View Controls -->
+  <div class="deadlines-controls-bar">
+    <div class="filter-pills-row">
+      <button type="button" class="deadline-filter-pill active" data-filter="all">All Deadlines ({{ scholarships|length }})</button>
+      <button type="button" class="deadline-filter-pill" data-filter="urgent">Urgent (&lt; 30 Days)</button>
+      <button type="button" class="deadline-filter-pill" data-filter="saved">Bookmarked in Tracker (<span id="savedDeadlinesCount">0</span>)</button>
+    </div>
+
+    <div class="search-bar-input compact-search" style="max-width: 320px;">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="deadlineSearchInput" placeholder="Filter by scholarship or country..." autocomplete="off">
+    </div>
+  </div>
+
+  <!-- Deadlines Grid Layout -->
+  <div class="deadlines-stream-grid" id="deadlinesStream">
+    {% for s in scholarships %}
+    <div class="deadline-card" data-country="{{ s.country }}" data-slug="{{ s.slug }}" data-days="{{ s.days_left }}" data-name="{{ s.name }}">
+      <div class="deadline-card-header">
+        <div class="countdown-ring-wrap">
+          <svg class="countdown-svg" width="56" height="56" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="22" class="countdown-track" />
+            <circle cx="28" cy="28" r="22" class="countdown-fill" style="stroke: {{ s.urgency_color }}; stroke-dasharray: 138; stroke-dashoffset: {{ 138 - (138 * s.urgency_percent / 100) }};" />
+          </svg>
+          <span class="countdown-number" style="color: {{ s.urgency_color }};">{{ s.days_left }}d</span>
+        </div>
+        <div class="deadline-meta-right">
+          <span class="badge-country">{{ s.flag }} {{ s.country }}</span>
+          <span class="urgency-badge" style="background: {{ s.urgency_color }}18; color: {{ s.urgency_color }}; border: 1px solid {{ s.urgency_color }}40;">
+            {{ s.urgency_label }}
+          </span>
+        </div>
+      </div>
+
+      <h3 class="deadline-card-title">{{ s.name }}</h3>
+      <div class="deadline-funder"><i class="fa-solid fa-building-columns"></i> {{ s.funder }}</div>
+
+      <div class="deadline-date-box">
+        <i class="fa-solid fa-calendar-check gold-icon"></i>
+        <span><strong>Official Deadline:</strong> {{ s.deadline }}</span>
+      </div>
+
+      <div class="deadline-actions">
+        <a href="/scholarships/{{ s.slug }}" class="btn btn-secondary btn-sm">Dossier &rarr;</a>
+        <a href="{{ s.official_website }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm verify-official-link">
+          Portal &rarr;
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

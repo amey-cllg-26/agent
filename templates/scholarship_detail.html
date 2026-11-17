@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}{{ s.name }} - Academic Dossier | The Scholar's Atlas - GCOEK{% endblock %}
+
+{% block content %}
+<div class="page-container dossier-page-container">
+
+  <!-- Breadcrumbs Navigation -->
+  <nav class="breadcrumb-nav">
+    <a href="/"><i class="fa-solid fa-house"></i> Home</a>
+    <span>/</span>
+    <a href="/explore">Explore Scholarships</a>
+    <span>/</span>
+    <span class="breadcrumb-active">{{ s.name }}</span>
+  </nav>
+
+  <!-- Hero Band -->
+  <header class="dossier-hero-band">
+    <div class="dossier-hero-left">
+      <div class="dossier-badge-row">
+        <span class="badge-country"><span class="flag-icon">{{ s.flag }}</span> {{ s.country }}</span>
+        {% if s.coverage_level == 'full' %}
+        <span class="badge-coverage-full"><i class="fa-solid fa-crown"></i> 100% Fully Funded</span>
+        {% else %}
+        <span class="badge-coverage-partial"><i class="fa-solid fa-award"></i> Partial Funding</span>
+        {% endif %}
+        <span class="badge-fit badge-fit-target"><i class="fa-solid fa-wand-magic-sparkles"></i> {{ s.fit_score }}% GCOEK Match</span>
+      </div>
+
+      <h1 class="dossier-hero-title">{{ s.name }}</h1>
+      <div class="dossier-hero-funder">
+        <i class="fa-solid fa-building-columns"></i> Administered by: <strong>{{ s.funder }}</strong>
+        <span class="funder-dot">•</span>
+        <span><i class="fa-solid fa-shield-check" style="color: #10b981;"></i> Last verified: {{ s.last_verified }}</span>
+      </div>
+
+      <p class="dossier-hero-summary">{{ s.coverage_summary }}</p>
+
+      <div class="dossier-cta-row">
+        <a href="{{ s.official_website }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg verify-official-link">
+          Apply on Official Portal <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.85rem;"></i>
+        </a>
+        <button type="button" class="btn btn-secondary btn-lg" id="dossierBookmarkBtn" data-slug="{{ s.slug }}" data-name="{{ s.name }}" data-country="{{ s.country }}" data-deadline="{{ s.deadline }}">
+          <i class="fa-solid fa-plus"></i> Add to Tracker
+        </button>
+        <button type="button" class="btn btn-secondary btn-lg" id="dossierShareBtn">
+          <i class="fa-solid fa-share-nodes"></i> Share
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Facts Card -->
+    <aside class="dossier-quick-facts-card">
+      <div class="facts-header">
+        <h4><i class="fa-solid fa-receipt gold-icon"></i> Program Snapshot</h4>
+        <span class="facts-badge">{{ s.region }}</span>
+      </div>
+
+      <div class="facts-metric-highlight">
+        <span class="facts-label">Total Award Value</span>
+        <span class="facts-val-gold">{{ s.award_amount }}</span>
+        <span class="facts-subtext">Net Out-of-Pocket: {% if s.out_of_pocket_usd_per_year == 0 %}<strong style="color: #10b981;">$0 (FREE)</strong>{% else %}${{ "{:,}".format(s.out_of_pocket_usd_per_year) }}/year{% endif %}</span>
+      </div>
+
+      <div class="facts-list">
+        <div class="fact-row">
+          <span class="fact-lbl"><i class="fa-solid fa-graduation-cap"></i> Degree Level</span>
+          <span class="fact-val">{{ s.degree_levels }}</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-lbl"><i class="fa-solid fa-calendar-days"></i> Deadline</span>
+          <span class="fact-val" style="color: {{ s.urgency_color }}; font-weight: 700;">{{ s.deadline }}</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-lbl"><i class="fa-solid fa-chart-simple"></i> Target GPA</span>
+          <span class="fact-val">{% if s.suggested_cgpa_4 %}~{{ s.suggested_cgpa_4 }} / 4.0 (Approx. {{ (s.suggested_cgpa_4 / 4.0 * 10)|round(1) }}/10.0 GCOEK){% else %}Merit-based{% endif %}</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-lbl"><i class="fa-solid fa-passport"></i> Eligibility</span>
+          <span class="fact-val">{{ s.eligible_nationalities }}</span>
+        </div>
+        <div class="fact-row">
+          <span class="fact-lbl"><i class="fa-solid fa-language"></i> Language</span>
+          <span class="fact-val">{{ s.english_requirement }}</span>
+        </div>
+      </div>
+
+      <div class="facts-advisory-callout">
+        <i class="fa-solid fa-info-circle"></i>
+        <span>Need guidance on Shivaji University / GCOEK transcript conversion? <a href="/advisor">Consult GCOEK Advisor &rarr;</a></span>
+      </div>
+    </aside>
+  </header>
+
+  <!-- Dossier Tabbed Navigation -->
+  <div class="dossier-tab-container">
+    <div class="dossier-tab-bar" role="tablist">
+      <button class="dossier-tab active" data-tab="benefits" role="tab" aria-selected="true">
+        <i class="fa-solid fa-gift"></i> Overview & Benefits
+      </button>
+      <button class="dossier-tab" data-tab="eligibility" role="tab" aria-selected="false">
+        <i class="fa-solid fa-list-check"></i> Eligibility Matrix
+      </button>
+      <button class="dossier-tab" data-tab="timeline" role="tab" aria-selected="false">
+        <i class="fa-solid fa-timeline"></i> Application Timeline
+      </button>
+      <button class="dossier-tab" data-tab="documents" role="tab" aria-selected="false">
+        <i class="fa-solid fa-folder-open"></i> Document Checklist
+      </button>
+      <button class="dossier-tab" data-tab="alumni" role="tab" aria-selected="false">
+        <i class="fa-solid fa-user-graduate"></i> Past Winners & Alumni
+      </button>
+      <button class="dossier-tab" data-tab="faqs" role="tab" aria-selected="false">
+        <i class="fa-solid fa-circle-question"></i> FAQs & Pitfalls
+      </button>
+    </div>
+
+    <!-- Tab 1: Overview & Benefits -->
+    <section class="dossier-tab-content active" id="tab-benefits" role="tabpanel">
+      <div class="tab-card">
+        <h3><i class="fa-solid fa-hand-holding-dollar gold-icon"></i> Funding Breakdown & Allowances</h3>
+        <p class="specs-intro">This fellowship provides comprehensive institutional backing designed to remove all financial barriers for talented international students.</p>
+
+        <div class="benefits-grid">
+          <div class="benefit-box">
+            <div class="benefit-icon"><i class="fa-solid fa-receipt"></i></div>
+            <div class="benefit-text">
+              <h4>100% Tuition Exemption</h4>
+              <p>Full waiver of university academic fees, semester enrolment charges, and laboratory dues for the duration of the degree.</p>
+            </div>
+          </div>
+          <div class="benefit-box">
+            <div class="benefit-icon"><i class="fa-solid fa-wallet"></i></div>
+            <div class="benefit-text">
+              <h4>Monthly Subsistence Allowance</h4>
+              <p>Regular monthly living stipend to cover accommodation, groceries, local transportation, and student living expenses in {{ s.country }}.</p>
+            </div>
+          </div>
+          <div class="benefit-box">
+            <div class="benefit-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div class="benefit-text">
+              <h4>Comprehensive Health Insurance</h4>
+              <p>Mandatory state health insurance and accident coverage provided for the full duration of studies.</p>
+            </div>
+          </div>
+          <div class="benefit-box">
+            <div class="benefit-icon"><i class="fa-solid fa-plane-departure"></i></div>
+            <div class="benefit-text">
+              <h4>International Roundtrip Airfare</h4>
+              <p>Reimbursement of return economy flight tickets between Mumbai/Pune and your destination host city.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="why-fits-box">
+          <h4><i class="fa-solid fa-wand-magic-sparkles gold-icon"></i> Why This Opportunity Fits GCOEK Engineering Students</h4>
+          <p>{{ s.why_fits_you }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Eligibility Matrix -->
+    <section class="dossier-tab-content" id="tab-eligibility" role="tabpanel" style="display: none;">
+      <div class="tab-card">
+        <h3><i class="fa-solid fa-shield-halved gold-icon"></i> Interactive Eligibility Matrix</h3>
+        <p class="specs-intro">Review key criteria and check off items that match your current profile.</p>
+
+        <div class="checklist-items">
+          <label class="checklist-item-row">
+            <input type="checkbox" checked>
+            <div class="checklist-item-info">
+              <strong>Undergraduate Degree: B.E. / B.Tech</strong>
+              <p>Applicant holds or is in the final year of completing a Bachelor's degree in engineering from an AICTE/UGC accredited institution (GCOEK).</p>
+            </div>
+          </label>
+          <label class="checklist-item-row">
+            <input type="checkbox" checked>
+            <div class="checklist-item-info">
+              <strong>Academic Performance Threshold</strong>
+              <p>{{ s.academic_note }} (Suggested competitive benchmark: ~{{ s.suggested_cgpa_4 or '3.0' }}/4.0 scale).</p>
+            </div>
+          </label>
+          <label class="checklist-item-row">
+            <input type="checkbox" checked>
+            <div class="checklist-item-info">
+              <strong>Nationality Requirement</strong>
+              <p>{{ s.eligible_nationalities }}</p>
+            </div>
+          </label>
+          <label class="checklist-item-row">
+            <input type="checkbox">
+            <div class="checklist-item-info">
+              <strong>English Language Proficiency</strong>
+              <p>{{ s.english_requirement }}</p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Application Timeline -->
+    <section class="dossier-tab-content" id="tab-timeline" role="tabpanel" style="display: none;">
+      <div class="tab-card">
+        <h3><i class="fa-solid fa-timeline gold-icon"></i> Annual Application & Intake Road Map</h3>
+        <p class="specs-intro">Typical milestone schedule for the 2026–2027 international intake cycle.</p>
+
+        <div class="timeline-stepper">
+          {% for step in s.timeline %}
+          <div class="timeline-step">
+            <div class="timeline-step-badge">{{ loop.index }}</div>
+            <div class="timeline-step-content">
+              <div class="timeline-step-header">
+                <h4>{{ step.phase }}</h4>
+                <span class="timeline-step-date">{{ step.timeline }}</span>
+              </div>
+              <p>{{ step.desc }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Document Checklist -->
+    <section class="dossier-tab-content" id="tab-documents" role="tabpanel" style="display: none;">
+      <div class="tab-card">
+        <div class="doc-header-row">
+          <div>
+            <h3><i class="fa-solid fa-folder-closed gold-icon"></i> Required Application Dossier Documents</h3>
+            <p class="specs-intro">Prepare these documents in advance of the deadline.</p>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="window.print();">
+            <i class="fa-solid fa-print"></i> Print Checklist
+          </button>
+        </div>
+
+        <div class="documents-table-wrap">
+          <table class="documents-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Document Name</th>
+                <th>Institutional Requirement</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for doc in s.documents %}
+              <tr>
+                <td><input type="checkbox" class="doc-check"></td>
+                <td><strong>{{ doc.name }}</strong></td>
+                <td>{{ doc.desc }}</td>
+                <td>
+                  {% if doc.mandatory %}
+                  <span class="doc-badge-mandatory">Mandatory</span>
+                  {% else %}
+                  <span class="doc-badge-optional">Optional</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Past Winners & Alumni -->
+    <section class="dossier-tab-content" id="tab-alumni" role="tabpanel" style="display: none;">
+      <div class="tab-card">
+        <h3><i class="fa-solid fa-award gold-icon"></i> GCOEK Alumni Success Stories & Advice</h3>
+        <p class="specs-intro">Recent graduates from Government College of Engineering, Kolhapur who secured competitive international funding.</p>
+
+        <div class="alumni-cards-grid">
+          {% for winner in s.past_winners %}
+          <div class="alumni-card">
+            <div class="alumni-header">
+              <img src="{{ winner.avatar }}" alt="{{ winner.name }}" class="alumni-avatar">
+              <div>
+                <h4>{{ winner.name }}</h4>
+                <div class="alumni-batch">{{ winner.batch }}</div>
+                <div class="alumni-award-tag"><i class="fa-solid fa-crown"></i> {{ winner.award }}</div>
+              </div>
+            </div>
+            <blockquote class="alumni-quote">
+              "{{ winner.quote }}"
+            </blockquote>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 6: FAQs -->
+    <section class="dossier-tab-content" id="tab-faqs" role="tabpanel" style="display: none;">
+      <div class="tab-card">
+        <h3><i class="fa-solid fa-comments-question-check gold-icon"></i> Frequently Asked Questions for GCOEK Applicants</h3>
+        <p class="specs-intro">Common queries resolved by the GCOEK Higher Studies Counseling Desk.</p>
+
+        <div class="faq-accordion">
+          {% for faq in s.faqs %}
+          <details class="faq-item">
+            <summary class="faq-question">
+              <span>{{ faq.q }}</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </summary>
+            <div class="faq-answer">
+              <p>{{ faq.a }}</p>
+            </div>
+          </details>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Similar Opportunities Rail -->
+  {% if similar %}
+  <section class="similar-section">
+    <h3 class="similar-title"><i class="fa-solid fa-compass gold-icon"></i> Similar Opportunities in {{ s.country }} & Europe</h3>
+    <div class="scholarships-grid">
+      {% for sim in similar %}
+      <div class="scholarship-card atlas-card">
+        <div class="card-header-row">
+          <span class="badge-country">{{ sim.flag }} {{ sim.country }}</span>
+          <span class="badge-fit badge-fit-target">{{ sim.fit_score }}% Match</span>
+        </div>
+        <h3 class="card-title">{{ sim.name }}</h3>
+        <div class="card-funder">{{ sim.funder }}</div>
+        <div class="card-financials atlas-financial-pill">
+          <span class="metric-amount amount-gold">{{ sim.award_amount }}</span>
+        </div>
+        <div class="card-actions" style="margin-top: auto;">
+          <a href="/scholarships/{{ sim.slug }}" class="btn btn-secondary btn-sm" style="width: 100%;">View Dossier &rarr;</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}

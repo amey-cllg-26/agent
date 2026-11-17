@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Application Tracker & Kanban Pipeline | The Scholar's Atlas - GCOEK{% endblock %}
+
+{% block content %}
+<div class="page-container tracker-page-container">
+
+  <!-- Tracker Header Banner -->
+  <header class="tracker-hero-banner">
+    <div class="hero-college-badge">
+      <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
+    </div>
+    <div class="tracker-header-row">
+      <div>
+        <h1 class="tracker-title">Application <span class="gold-gradient-text">Kanban Tracker</span></h1>
+        <p class="tracker-sub">
+          Manage your scholarship applications across every stage from document preparation to final award. Data is encrypted and stored locally in your browser.
+        </p>
+      </div>
+
+      <div class="tracker-actions-group">
+        <button type="button" class="btn btn-secondary btn-sm" id="exportTrackerJsonBtn">
+          <i class="fa-solid fa-download"></i> Export Backup (JSON)
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="exportTrackerCsvBtn">
+          <i class="fa-solid fa-file-csv"></i> Export CSV
+        </button>
+        <a href="/explore" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-plus"></i> Add Scholarship
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Kanban Board Pipeline -->
+  <div class="kanban-board-container" id="kanbanBoard">
+
+    <!-- Column 1: Bookmarked -->
+    <div class="kanban-column" data-status="bookmarked">
+      <div class="column-header">
+        <div class="column-title-group">
+          <span class="column-badge badge-bookmarked">Bookmarked</span>
+          <span class="column-count" id="countBookmarked">0</span>
+        </div>
+      </div>
+      <div class="kanban-dropzone" id="dropzoneBookmarked">
+        <!-- Cards rendered via JS -->
+      </div>
+    </div>
+
+    <!-- Column 2: Preparing Docs -->
+    <div class="kanban-column" data-status="preparing">
+      <div class="column-header">
+        <div class="column-title-group">
+          <span class="column-badge badge-preparing">Preparing Docs</span>
+          <span class="column-count" id="countPreparing">0</span>
+        </div>
+      </div>
+      <div class="kanban-dropzone" id="dropzonePreparing">
+        <!-- Cards rendered via JS -->
+      </div>
+    </div>
+
+    <!-- Column 3: Submitted -->
+    <div class="kanban-column" data-status="submitted">
+      <div class="column-header">
+        <div class="column-title-group">
+          <span class="column-badge badge-submitted">Submitted</span>
+          <span class="column-count" id="countSubmitted">0</span>
+        </div>
+      </div>
+      <div class="kanban-dropzone" id="dropzoneSubmitted">
+        <!-- Cards rendered via JS -->
+      </div>
+    </div>
+
+    <!-- Column 4: Interview / Review -->
+    <div class="kanban-column" data-status="interview">
+      <div class="column-header">
+        <div class="column-title-group">
+          <span class="column-badge badge-interview">Interview / Review</span>
+          <span class="column-count" id="countInterview">0</span>
+        </div>
+      </div>
+      <div class="kanban-dropzone" id="dropzoneInterview">
+        <!-- Cards rendered via JS -->
+      </div>
+    </div>
+
+    <!-- Column 5: Awarded -->
+    <div class="kanban-column" data-status="awarded">
+      <div class="column-header">
+        <div class="column-title-group">
+          <span class="column-badge badge-awarded">Awarded 🏆</span>
+          <span class="column-count" id="countAwarded">0</span>
+        </div>
+      </div>
+      <div class="kanban-dropzone" id="dropzoneAwarded">
+        <!-- Cards rendered via JS -->
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

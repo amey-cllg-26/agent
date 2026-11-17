@@ -5,51 +5,189 @@
 {% block content %}
 <div class="page-container">
 
-  <!-- Hero Section with Prominent GCOEK Tagline & Branding -->
-  <section class="college-hero-banner">
-    <div class="hero-college-badge">
-      <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
-    </div>
-    <h1 class="hero-main-title">Scholarship Finder for Government College of Engineering, Kolhapur</h1>
-    <p class="hero-main-desc">
-      Official centralized directory assisting GCOEK engineering students and alumni in discovering fully funded and partial scholarships for higher studies (M.Tech, M.S., Ph.D.) across India, Europe, USA, Canada, Japan, and Australia.
-    </p>
+  <!-- The Scholar's Atlas Institutional Hero & Opportunity Globe -->
+  <section class="atlas-hero-section">
+    <div class="atlas-hero-header">
+      <div class="hero-college-badge">
+        <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK) • Official Scholar Portal
+      </div>
+      <h1 class="atlas-hero-title">Find the scholarship that <span class="gold-gradient-text">finds you</span>.</h1>
+      <p class="atlas-hero-desc">
+        The Scholar's Atlas is the official intelligent discovery engine for GCOEK engineering students and alumni — mapping verified, fully funded Master's, Ph.D., and research fellowships across Europe, North America, and Asia.
+      </p>
 
-    <!-- Key Metrics Ribbon -->
-    <div class="hero-stats-ribbon">
-      <div class="ribbon-item">
-        <span class="ribbon-num" id="statHeroTotal">{{ DATASET_STATS.total_scholarships }}</span>
-        <span class="ribbon-lbl">Verified Scholarships</span>
+      <!-- AI Search Bar with Preserved IDs -->
+      <div class="search-bar-wrapper">
+        <div class="search-bar-input">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="keywordSearchInput" placeholder="I'm a 2nd-year CS student at GCOEK looking for fully-funded masters abroad with 8.2 CGPA..." autocomplete="off">
+        </div>
+        <button class="btn btn-primary" id="mainSearchBtn">
+          Search Atlas
+        </button>
       </div>
-      <div class="ribbon-item">
-        <span class="ribbon-num" id="statHeroCountries">{{ DATASET_STATS.countries_count }}</span>
-        <span class="ribbon-lbl">Countries Covered</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-num">100%</span>
-        <span class="ribbon-lbl">Verified Official Portals</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-num">10-Point</span>
-        <span class="ribbon-lbl">GCOEK CGPA Converter</span>
-      </div>
-      <div class="ribbon-item">
-        <span class="ribbon-num"><i class="fa-solid fa-shield-check" style="font-size: 1.1rem; color: #10b981;"></i> Nov 2026</span>
-        <span class="ribbon-lbl">Dataset Last Verified</span>
+
+      <!-- Quick Exploration Pills -->
+      <div class="hero-quick-prompts">
+        <span class="quick-prompt-label"><i class="fa-solid fa-bolt"></i> Popular:</span>
+        <button type="button" class="hero-prompt-chip" data-query="Germany">🇩🇪 Masters in Germany</button>
+        <button type="button" class="hero-prompt-chip" data-query="DAAD">DAAD Research</button>
+        <button type="button" class="hero-prompt-chip" data-query="Swiss">🇨🇭 Swiss Excellence</button>
+        <button type="button" class="hero-prompt-chip" data-query="Full">100% Fully Funded</button>
+        <a href="/india" class="hero-prompt-chip chip-india">🇮🇳 Indian Caste Schemes ({{ INDIA_STATS.total_schemes }})</a>
       </div>
     </div>
 
-    <!-- Main Search Bar -->
-    <div class="search-bar-wrapper">
-      <div class="search-bar-input">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" id="keywordSearchInput" placeholder="Search by scholarship, engineering branch, country, or funder (e.g. DAAD WISE, Mechanical, USA, Fulbright)..." autocomplete="off">
+    <!-- Opportunity Globe: Interactive World Map Surface -->
+    <div class="atlas-globe-card">
+      <div class="globe-card-header">
+        <div class="globe-title-group">
+          <span class="globe-badge"><i class="fa-solid fa-globe"></i> Interactive Opportunity Globe</span>
+          <h3>Global Engineering Fellowships for GCOEK Scholars</h3>
+        </div>
+        <span class="globe-hint"><i class="fa-solid fa-arrow-pointer"></i> Hover glowing nodes for grant values • Click to filter</span>
       </div>
-      <button class="btn btn-primary" id="mainSearchBtn">
-        Search Scholarships
-      </button>
+
+      <div class="globe-svg-canvas-wrap">
+        <svg viewBox="0 0 980 480" class="opportunity-globe-svg" id="opportunityGlobeSvg" aria-label="Interactive Opportunity World Map">
+          <defs>
+            <radialGradient id="globeDotGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#E8B94A" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#E8B94A" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <!-- Latitude / Longitude Atlas Grid -->
+          <line x1="0" y1="120" x2="980" y2="120" stroke="rgba(232, 185, 74, 0.12)" stroke-dasharray="4,4" />
+          <line x1="0" y1="240" x2="980" y2="240" stroke="rgba(232, 185, 74, 0.2)" stroke-width="1.2" />
+          <line x1="0" y1="360" x2="980" y2="360" stroke="rgba(232, 185, 74, 0.12)" stroke-dasharray="4,4" />
+          <line x1="490" y1="0" x2="490" y2="480" stroke="rgba(232, 185, 74, 0.2)" stroke-width="1.2" />
+
+          <!-- Continental Outlines Simplified Vector Geometry -->
+          <path class="globe-continent" d="M120,70 L250,60 L290,110 L260,170 L190,180 L140,130 Z" />
+          <path class="globe-continent" d="M220,220 L280,240 L290,340 L250,420 L210,320 Z" />
+          <path class="globe-continent" d="M460,70 L560,65 L570,140 L500,150 L460,110 Z" />
+          <path class="globe-continent" d="M470,170 L570,170 L580,310 L520,380 L460,260 Z" />
+          <path class="globe-continent" d="M570,70 L820,75 L860,190 L750,260 L610,190 Z" />
+          <path class="globe-continent" d="M740,320 L860,320 L870,410 L760,420 Z" />
+
+          <!-- Animated Glowing Country Opportunity Dots -->
+          {% for dot in globe_dots %}
+          <g class="globe-pin-group" data-country="{{ dot.country }}" data-flag="{{ dot.flag }}" data-count="{{ dot.count }}" data-award="{{ dot.top_award }}" tabindex="0" role="button" aria-label="{{ dot.country }}: {{ dot.count }} scholarships">
+            <circle cx="{{ dot.svg_x }}" cy="{{ dot.svg_y }}" r="18" class="globe-pulse-ring" />
+            <circle cx="{{ dot.svg_x }}" cy="{{ dot.svg_y }}" r="6" class="globe-dot-core" />
+            <circle cx="{{ dot.svg_x }}" cy="{{ dot.svg_y }}" r="2.5" fill="#FFFDF9" />
+          </g>
+          {% endfor %}
+        </svg>
+
+        <!-- Dynamic Hover Preview Card -->
+        <div class="globe-hover-card" id="globeHoverCard" style="display: none;">
+          <div class="hover-card-header">
+            <span class="hover-flag" id="hoverCardFlag">🇩🇪</span>
+            <span class="hover-country" id="hoverCardCountry">Germany</span>
+          </div>
+          <div class="hover-card-stats">
+            <span class="hover-count" id="hoverCardCount">24</span> scholarships verified
+          </div>
+          <div class="hover-card-award" id="hoverCardAward">Up to €18,000/yr + Full Fees</div>
+          <div class="hover-card-hint">Click to filter opportunities &rarr;</div>
+        </div>
+      </div>
+
+      <!-- Live Animated Stats Counters Ribbon -->
+      <div class="hero-stats-ribbon atlas-live-metrics">
+        <div class="ribbon-item">
+          <span class="ribbon-num" id="statHeroTotal">{{ DATASET_STATS.total_scholarships }}</span>
+          <span class="ribbon-lbl">Global Verified Fellowships</span>
+        </div>
+        <div class="ribbon-item">
+          <span class="ribbon-num" id="statHeroCountries">{{ DATASET_STATS.countries_count }}</span>
+          <span class="ribbon-lbl">Countries Mapped</span>
+        </div>
+        <div class="ribbon-item">
+          <span class="ribbon-num">$52M+</span>
+          <span class="ribbon-lbl">Tracked Annual Funding</span>
+        </div>
+        <div class="ribbon-item">
+          <span class="ribbon-num">10-Point</span>
+          <span class="ribbon-lbl">GCOEK CGPA Converter</span>
+        </div>
+        <div class="ribbon-item">
+          <span class="ribbon-num"><i class="fa-solid fa-shield-check" style="font-size: 1.1rem; color: #10b981;"></i> Nov 2026</span>
+          <span class="ribbon-lbl">Dataset Last Verified</span>
+        </div>
+      </div>
     </div>
   </section>
+
+  <!-- Closing Soon Rail: Urgent Deadlines with Circular Countdown Rings -->
+  <section class="atlas-section closing-soon-section">
+    <div class="section-title-row">
+      <div>
+        <h2 class="atlas-section-title"><i class="fa-solid fa-hourglass-half gold-icon"></i> Closing Soon on the Atlas</h2>
+        <p class="atlas-section-sub">Imminent application windows requiring immediate document submission</p>
+      </div>
+      <a href="/deadlines" class="btn btn-secondary btn-sm">Full Deadline Radar &rarr;</a>
+    </div>
+
+    <div class="closing-rail-scroller">
+      {% for s in closing_soon %}
+      <div class="closing-rail-card">
+        <div class="countdown-ring-wrap">
+          <svg class="countdown-svg" width="54" height="54" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="21" class="countdown-track" />
+            <circle cx="27" cy="27" r="21" class="countdown-fill" style="stroke: {{ s.urgency_color }}; stroke-dasharray: 132; stroke-dashoffset: {{ 132 - (132 * s.urgency_percent / 100) }};" />
+          </svg>
+          <span class="countdown-number" style="color: {{ s.urgency_color }};">{{ s.days_left }}d</span>
+        </div>
+        <div class="closing-card-info">
+          <div class="closing-card-country">{{ s.flag }} {{ s.country }}</div>
+          <h4 class="closing-card-title">{{ s.name }}</h4>
+          <div class="closing-card-funder"><i class="fa-solid fa-building-columns"></i> {{ s.funder }}</div>
+          <div class="closing-card-bottom">
+            <span class="closing-award">{{ s.award_amount }}</span>
+            <a href="/scholarships/{{ s.slug }}" class="closing-view-link">Dossier &rarr;</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Featured Collections -->
+  <section class="atlas-section collections-section">
+    <div class="section-title-row">
+      <div>
+        <h2 class="atlas-section-title"><i class="fa-solid fa-layer-group gold-icon"></i> Curated Atlas Collections</h2>
+        <p class="atlas-section-sub">Hand-picked funding pathways tailored to common GCOEK student profiles</p>
+      </div>
+      <a href="/explore" class="btn btn-secondary btn-sm">Explore All Pathways &rarr;</a>
+    </div>
+
+    <div class="collections-grid">
+      {% for col in featured_collections %}
+      <div class="collection-tile" data-collection="{{ col.filter }}" role="button" tabindex="0">
+        <div class="collection-icon" style="color: {{ col.color }};">
+          <i class="fa-solid {{ col.icon }}"></i>
+        </div>
+        <div class="collection-info">
+          <h4>{{ col.title }}</h4>
+          <p>{{ col.subtitle }}</p>
+          <span class="collection-count">{{ col.count }} Verified Programs &rarr;</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Section Divider: Interactive Discovery Directory -->
+  <div class="directory-section-header" id="directorySection">
+    <div>
+      <h2 class="atlas-section-title"><i class="fa-solid fa-sliders gold-icon"></i> Student Profile Matcher & Directory</h2>
+      <p class="atlas-section-sub">Filter by CGPA, out-of-pocket budget, destination nation, and degree level</p>
+    </div>
+  </div>
 
   <!-- Main Content Layout (Sidebar Filters + Results) -->
   <div class="content-layout">

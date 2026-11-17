@@ -289,6 +289,67 @@ def test_nationality_formatting_and_links(client):
             assert web.startswith("http"), f"Invalid official website in {item['name']}: {web}"
 
 
+def test_atlas_routes_and_apis(client):
+    """Verify that all The Scholar's Atlas routes and APIs function correctly."""
+    # 1. Homepage has Opportunity Globe and GCOEK tagline
+    res_home = client.get("/")
+    assert res_home.status_code == 200
+    assert b"opportunityGlobeSvg" in res_home.data
+    assert b"Find the scholarship that" in res_home.data
+    assert b"Scholarship Finder for Government College of Engineering, Kolhapur" in res_home.data
+
+    # 2. Explore page
+    res_exp = client.get("/explore")
+    assert res_exp.status_code == 200
+    assert b"exploreFilterForm" in res_exp.data
+
+    # 3. Match Wizard
+    res_match = client.get("/match")
+    assert res_match.status_code == 200
+    assert b"wizardCard" in res_match.data
+
+    # 4. Deadlines Radar
+    res_dl = client.get("/deadlines")
+    assert res_dl.status_code == 200
+    assert b"deadlinesStream" in res_dl.data
+
+    # 5. Application Tracker
+    res_tr = client.get("/tracker")
+    assert res_tr.status_code == 200
+    assert b"kanbanBoard" in res_tr.data
+
+    # 6. Scholar Passport Profile
+    res_prof = client.get("/profile")
+    assert res_prof.status_code == 200
+    assert b"profileCgpa" in res_prof.data
+
+    # 7. Dossier Route
+    res_dos = client.get("/scholarships/daad-development-related-postgraduate-courses-epos")
+    assert res_dos.status_code == 200
+    assert b"dossier-hero-band" in res_dos.data
+
+    # 8. Atlas API
+    res_api = client.get("/api/atlas/scholarships?degree=master")
+    assert res_api.status_code == 200
+    assert res_api.get_json()["total"] > 0
+
+    # 9. Match Wizard API
+    res_wiz = client.post("/api/match-wizard", json={
+        "branch": "Computer Science",
+        "cgpa": 8.5,
+        "scale": 10.0,
+        "target_degree": "Master",
+        "destinations": ["Germany", "Switzerland"]
+    })
+    assert res_wiz.status_code == 200
+    assert len(res_wiz.get_json()["top_matches"]) == 5
+
+    # 10. iCal Export
+    res_cal = client.get("/api/calendar/export.ics")
+    assert res_cal.status_code == 200
+    assert b"BEGIN:VCALENDAR" in res_cal.data
+
+
 
 
 

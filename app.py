@@ -6,13 +6,14 @@ import os
 import io
 import uuid
 from typing import Optional
-from flask import Flask, render_template, request, jsonify, send_file, abort
+from flask import Flask, render_template, request, jsonify, send_file, abort, Response, redirect
 from werkzeug.utils import secure_filename
 import pandas as pd
 
 import matching_service
 import agent_service
 import india_service
+import atlas_service
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "gcoek-scholarship-finder-2026")
@@ -62,8 +63,76 @@ def inject_institutional_branding():
 
 @app.route("/")
 def home():
-    """Main Scholarship Directory and Matcher Page."""
-    return render_template("index.html")
+    """Main Scholarship Directory and Matcher Page (The Scholar's Atlas)."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    globe_dots = atlas_service.get_opportunity_globe_data(all_atlas)
+    closing_soon = atlas_service.get_closing_soon_rail(all_atlas, limit=8)
+    collections = atlas_service.get_featured_collections(all_atlas)
+    return render_template(
+        "index.html",
+        atlas_scholarships=all_atlas,
+        globe_dots=globe_dots,
+        closing_soon=closing_soon,
+        featured_collections=collections
+    )
+
+
+@app.route("/explore")
+def explore_page():
+    """The Scholar's Atlas: Multi-faceted Scholarship Discovery & Filters."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    collections = atlas_service.get_featured_collections(all_atlas)
+    countries = sorted(list(set(s["country"] for s in all_atlas)))
+    return render_template(
+        "explore.html",
+        scholarships=all_atlas,
+        collections=collections,
+        countries=countries
+    )
+
+
+@app.route("/scholarships/<slug>")
+def scholarship_dossier_page(slug: str):
+    """The Scholar's Atlas: Full Academic Dossier for a Scholarship Program."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    matched = next((s for s in all_atlas if s["slug"] == slug), None)
+    if not matched:
+        matched = next((s for s in all_atlas if slug in s["slug"] or s["slug"] in slug), None)
+    if not matched:
+        abort(404)
+    similar = [
+        s for s in all_atlas
+        if s["slug"] != matched["slug"] and (s["country"] == matched["country"] or s["coverage_level"] == matched["coverage_level"])
+    ][:3]
+    return render_template("scholarship_detail.html", s=matched, similar=similar)
+
+
+@app.route("/match")
+def match_wizard_page():
+    """The Scholar's Atlas: 6-Step Conversational AI Matching Questionnaire."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    countries = sorted(list(set(s["country"] for s in all_atlas)))
+    return render_template("match.html", countries=countries)
+
+
+@app.route("/deadlines")
+def deadlines_page():
+    """The Scholar's Atlas: Deadline Radar & Monthly Heatmap."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    return render_template("deadlines.html", scholarships=all_atlas)
+
+
+@app.route("/tracker")
+def tracker_page():
+    """The Scholar's Atlas: Drag-and-Drop Application Pipeline (Kanban)."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    return render_template("tracker.html", scholarships=all_atlas)
+
+
+@app.route("/profile")
+def profile_page():
+    """The Scholar's Atlas: Student Passport, Readiness Score & CGPA Converter."""
+    return render_template("profile.html")
 
 
 @app.route("/countries")
@@ -375,6 +444,62 @@ def export_dataset():
         mimetype="text/csv",
         as_attachment=True,
         download_name="gcoek_scholarships_export.csv"
+    )
+
+
+@app.route("/api/atlas/scholarships", methods=["GET"])
+def api_atlas_scholarships():
+    """Dynamic API endpoint for filtering Scholar's Atlas data."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    deg = request.args.get("degree")
+    fld = request.args.get("field")
+    cntry = request.args.get("country")
+    cov = request.args.get("coverage")
+    col = request.args.get("collection")
+    q = request.args.get("q")
+    cgpa = request.args.get("cgpa", type=float)
+    filtered = atlas_service.filter_atlas_scholarships(
+        all_atlas, degree=deg, field=fld, country=cntry, coverage=cov, collection=col, min_cgpa=cgpa, query=q
+    )
+    return jsonify({"total": len(filtered), "scholarships": filtered})
+
+
+@app.route("/api/match-wizard", methods=["POST"])
+def api_match_wizard():
+    """AI matching endpoint returning personalized student dossier."""
+    data = request.get_json() or {}
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    dossier = atlas_service.run_match_wizard(all_atlas, data)
+    return jsonify(dossier)
+
+
+@app.route("/api/calendar/export.ics", methods=["GET"])
+def export_calendar_ics():
+    """Generates an iCalendar (.ics) file with verified scholarship deadlines."""
+    all_atlas = atlas_service.load_atlas_scholarships(active_df)
+    ics_lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//GCOEK//Scholar Atlas//EN",
+        "X-WR-CALNAME:GCOEK Scholarship Deadlines",
+    ]
+    for s in all_atlas:
+        clean_name = s["name"].replace(",", "\\,")
+        ics_lines.extend([
+            "BEGIN:VEVENT",
+            f"SUMMARY:{clean_name} Deadline",
+            f"DESCRIPTION:Scholarship: {clean_name}\\nFunder: {s['funder']}\\nCountry: {s['country']}\\nOfficial Website: {s['official_website']}",
+            f"URL:{s['official_website']}",
+            "DTSTART:20261130T090000Z",
+            "DTEND:20261130T170000Z",
+            "STATUS:CONFIRMED",
+            "END:VEVENT"
+        ])
+    ics_lines.append("END:VCALENDAR")
+    return Response(
+        "\r\n".join(ics_lines),
+        mimetype="text/calendar",
+        headers={"Content-Disposition": "attachment; filename=gcoek_scholarship_deadlines.ics"}
     )
 
 

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Scholar Passport & Readiness Profile | The Scholar's Atlas - GCOEK{% endblock %}
+
+{% block content %}
+<div class="page-container profile-page-container">
+
+  <!-- Profile Hero Banner -->
+  <header class="profile-hero-banner">
+    <div class="hero-college-badge">
+      <i class="fa-solid fa-graduation-cap"></i> Government College of Engineering, Kolhapur (GCOEK)
+    </div>
+    <div class="profile-header-row">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-circle">
+          <i class="fa-solid fa-user-graduate"></i>
+        </div>
+      </div>
+      <div class="profile-hero-info">
+        <h1 class="profile-name">GCOEK Scholar Passport</h1>
+        <p class="profile-dept">Government College of Engineering, Kolhapur • Engineering Undergraduate / Alumni</p>
+        <div class="profile-status-pills">
+          <span class="status-pill"><i class="fa-solid fa-building-columns"></i> AICTE Autonomous</span>
+          <span class="status-pill"><i class="fa-solid fa-certificate"></i> Shivaji University Affiliated</span>
+          <span class="status-pill"><i class="fa-solid fa-globe"></i> International Candidate</span>
+        </div>
+      </div>
+
+      <!-- Readiness Score Ring -->
+      <div class="readiness-card">
+        <div class="readiness-ring-wrap">
+          <svg class="readiness-svg" width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="38" class="readiness-track" />
+            <circle cx="45" cy="45" r="38" class="readiness-fill" id="readinessCircle" style="stroke: #E8B94A; stroke-dasharray: 238; stroke-dashoffset: 48;" />
+          </svg>
+          <div class="readiness-text">
+            <span class="readiness-val" id="readinessVal">80%</span>
+            <span class="readiness-lbl">Readiness</span>
+          </div>
+        </div>
+        <p class="readiness-desc">Profile Completeness</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Profile Grid -->
+  <div class="profile-grid">
+
+    <!-- Left Column: Academic Credentials & CGPA Converter -->
+    <div class="profile-col">
+      <div class="card profile-card">
+        <h3><i class="fa-solid fa-calculator gold-icon"></i> GCOEK CGPA & Scale Converter</h3>
+        <p class="profile-card-sub">Automatic conversion based on Maharashtra Directorate of Technical Education and Shivaji University conversion formulas.</p>
+
+        <form id="profileCgpaForm" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="profileCgpa">GCOEK Cumulative CGPA (10.0 Scale)</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="profileCgpa" class="form-control" step="0.05" min="4.0" max="10.0" value="8.40">
+              <span class="input-suffix-pill">/ 10.0</span>
+            </div>
+          </div>
+
+          <!-- Computed Conversion Equivalents -->
+          <div class="conversion-results-grid">
+            <div class="conversion-box">
+              <span class="conv-lbl">US 4.0 Scale</span>
+              <span class="conv-val" id="convUsScale">3.36 / 4.0</span>
+              <span class="conv-note">Competitive for Top 50 Global Unis</span>
+            </div>
+            <div class="conversion-box">
+              <span class="conv-lbl">German ECTS Scale</span>
+              <span class="conv-val" id="convGermanScale">1.9 (Gut)</span>
+              <span class="conv-note">Bavarian Formula (1.0 = Best)</span>
+            </div>
+            <div class="conversion-box">
+              <span class="conv-lbl">Calculated %</span>
+              <span class="conv-val" id="convPct">79.8%</span>
+              <span class="conv-note">Formula: (CGPA &minus; 0.75) &times; 10</span>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Application Preferences -->
+      <div class="card profile-card" style="margin-top: 1.5rem;">
+        <h3><i class="fa-solid fa-sliders gold-icon"></i> Funding Preferences</h3>
+        <p class="profile-card-sub">Saved criteria to customize real-time Atlas matches and email alerts.</p>
+
+        <div class="pref-items">
+          <div class="pref-row">
+            <div>
+              <strong>Target Degree</strong>
+              <p>Master's of Science (M.S.) / Ph.D.</p>
+            </div>
+            <span class="pref-pill">Master's</span>
+          </div>
+          <div class="pref-row">
+            <div>
+              <strong>Primary Engineering Field</strong>
+              <p>Computer Science & IT / Mechanical</p>
+            </div>
+            <span class="pref-pill">Engineering</span>
+          </div>
+          <div class="pref-row">
+            <div>
+              <strong>Minimum Monthly Stipend</strong>
+              <p>Host country living wage threshold</p>
+            </div>
+            <span class="pref-pill">&ge; $1,200/mo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Document Locker & Readiness Checklist -->
+    <div class="profile-col">
+      <div class="card profile-card">
+        <h3><i class="fa-solid fa-folder-closed gold-icon"></i> Application Document Locker</h3>
+        <p class="profile-card-sub">Track readiness of your dossier files required by international ministries and embassies.</p>
+
+        <div class="locker-list">
+          <label class="locker-row">
+            <input type="checkbox" checked class="locker-check" id="checkTranscripts">
+            <div class="locker-info">
+              <div class="locker-name-row">
+                <strong>GCOEK Sealed Transcripts</strong>
+                <span class="locker-status-ready"><i class="fa-solid fa-circle-check"></i> Ready</span>
+              </div>
+              <p>Official grade sheets issued by GCOEK Controller of Examinations.</p>
+            </div>
+          </label>
+
+          <label class="locker-row">
+            <input type="checkbox" checked class="locker-check" id="checkSop">
+            <div class="locker-info">
+              <div class="locker-name-row">
+                <strong>Statement of Purpose (SOP)</strong>
+                <span class="locker-status-ready"><i class="fa-solid fa-circle-check"></i> Draft Complete</span>
+              </div>
+              <p>Tailored motivation letter highlighting final-year project work.</p>
+            </div>
+          </label>
+
+          <label class="locker-row">
+            <input type="checkbox" checked class="locker-check" id="checkLors">
+            <div class="locker-info">
+              <div class="locker-name-row">
+                <strong>Two Academic LORs</strong>
+                <span class="locker-status-ready"><i class="fa-solid fa-circle-check"></i> Confirmed</span>
+              </div>
+              <p>Recommendation letters from Department HoD and project supervisor.</p>
+            </div>
+          </label>
+
+          <label class="locker-row">
+            <input type="checkbox" checked class="locker-check" id="checkPassport">
+            <div class="locker-info">
+              <div class="locker-name-row">
+                <strong>Valid International Passport</strong>
+                <span class="locker-status-ready"><i class="fa-solid fa-circle-check"></i> Valid until 2031</span>
+              </div>
+              <p>Mandatory for visa sponsorship documentation.</p>
+            </div>
+          </label>
+
+          <label class="locker-row">
+            <input type="checkbox" class="locker-check" id="checkLanguage">
+            <div class="locker-info">
+              <div class="locker-name-row">
+                <strong>English Proficiency Test / MOI</strong>
+                <span class="locker-status-pending"><i class="fa-solid fa-clock"></i> In Progress</span>
+              </div>
+              <p>IELTS / TOEFL score, or official GCOEK Medium of Instruction Certificate.</p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
