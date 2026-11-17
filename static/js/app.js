@@ -529,8 +529,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="card-actions">
           <a href="/scholarship/${encodeURIComponent(s.name)}" class="btn btn-secondary btn-sm">Full Profile</a>
           <button type="button" class="btn btn-secondary btn-sm card-quick-view-btn">Quick View</button>
-          <a href="${s.official_website || '#'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
-            Website <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem;"></i>
+          <a href="${s.official_website || '#'}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm verify-official-link">
+            Verify on official site &rarr;
           </a>
         </div>
       `;
