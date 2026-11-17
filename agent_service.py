@@ -13,24 +13,27 @@ import matching_service
 
 load_dotenv()
 
-SYSTEM_PROMPT = """You are a scholarship advisor helping students find funding to study in Europe and internationally.
+SYSTEM_PROMPT = """You are an expert scholarship advisor helping students find verified scholarships globally across Europe, North America (USA, Canada), Asia (Japan, Korea, Singapore, China), Australia, the UK, and the Middle East.
 
-Before recommending, make sure you know ALL of these criteria. Ask for whatever is missing (one short question at a time is fine):
-- Target degree level (bachelor, master, or PhD)
-- CGPA and its scale (4.0, 5.0, 10, or percentage)
-- Yearly budget the student can pay from their own money, in US dollars
-- Nationality
-- Optional: preferred country
+Your goal is to recommend real, legitimate scholarship programs tailored to the student's degree level, CGPA, budget, nationality, and target destination.
 
-Rules:
-- Use the recommend_scholarships tool for every recommendation. Never invent scholarships, amounts, deadlines or requirements.
-- Present results grouped as Target, Safer, and Reach, with a mix when available. For each scholarship give: name, country, what it covers, estimated yearly out-of-pocket cost, key requirements, any warnings, deadline, and the official website.
-- Explain the labels honestly: they are rough heuristics based on how competitive each scholarship tends to be. Never say the student will be selected or has a certain chance of winning.
-- Mention that costs and support amounts are estimates, and that the CGPA conversion is approximate if one was applied.
-- If the deadline says 'Not recorded', tell the student to check the official website.
-- If nothing matches, say so and show the closest options over budget from the tool.
-- Always remind the student to confirm everything on the official website before applying.
-- Keep answers short, structured, and helpful."""
+Instructions:
+1. First, consult the local verified scholarship dataset using `recommend_scholarships` and `get_scholarship_details`.
+2. If the student asks for global opportunities, specific regions, or programs beyond the dataset, draw upon your verified knowledge of official international government and university scholarships (e.g. Fulbright, Knight-Hennessy, Australia Awards, MEXT Japan, GKS Korea, Vanier Canada, Chevening, DAAD, KAUST, etc.).
+3. Group your recommendations honestly into:
+   - 🎯 Target: Realistic academic fit
+   - 🛡️ Safer: Academic profile exceeds competitive threshold
+   - 🚀 Reach: Highly selective / premier prestigious programs
+4. For each recommended scholarship, provide:
+   - Program Name & Host Country
+   - Coverage: Tuition, living stipend, housing, health insurance, airfare
+   - Estimated Out-of-Pocket Cost per year (in USD)
+   - Academic GPA / percentage requirement
+   - Language / work experience prerequisite
+   - Application deadline
+   - Official website URL
+5. Never invent fictional scholarships or guarantees of admission. Remind the student to verify exact deadlines and guidelines on the official portal before applying."""
+
 
 
 class FallbackAdvisor:
@@ -103,14 +106,20 @@ class FallbackAdvisor:
                     pass
 
         # Country / destination extraction
-        countries = [
-            "germany", "united kingdom", "uk", "france", "sweden", "netherlands",
-            "hungary", "turkey", "italy", "switzerland", "czech republic", "austria",
-            "finland", "norway", "denmark", "spain", "ireland", "belgium"
-        ]
-        for c in countries:
-            if re.search(r"\b" + re.escape(c) + r"\b", t):
-                state["country"] = "United Kingdom" if c == "uk" else c.title()
+        countries_map = {
+            "united states": "United States", "usa": "United States", "us": "United States", "america": "United States",
+            "canada": "Canada", "australia": "Australia", "new zealand": "New Zealand",
+            "united kingdom": "United Kingdom", "uk": "United Kingdom", "britain": "United Kingdom",
+            "germany": "Germany", "france": "France", "sweden": "Sweden", "netherlands": "Netherlands",
+            "switzerland": "Switzerland", "japan": "Japan", "south korea": "South Korea", "korea": "South Korea",
+            "singapore": "Singapore", "china": "China", "taiwan": "Taiwan", "saudi arabia": "Saudi Arabia",
+            "qatar": "Qatar", "turkey": "Turkey", "hungary": "Hungary", "italy": "Italy",
+            "czech republic": "Czech Republic", "austria": "Austria", "finland": "Finland",
+            "norway": "Norway", "denmark": "Denmark", "spain": "Spain", "ireland": "Ireland", "belgium": "Belgium"
+        }
+        for k, v in countries_map.items():
+            if re.search(r"\b" + re.escape(k) + r"\b", t):
+                state["country"] = v
                 break
 
         # Nationality extraction (e.g., "from Bangladesh", "Indian student", "citizen of Nigeria")

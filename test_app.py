@@ -57,9 +57,21 @@ def test_recommendation_endpoint(client):
     data = response.get_json()
     assert "results" in data
     assert len(data["results"]) > 0
-    # DAAD should be included in Germany results
     names = [r["name"] for r in data["results"]]
     assert any("DAAD" in n for n in names)
+
+
+def test_global_scholarships_dataset(client):
+    """Verify global destinations such as USA, Japan, Australia are in dataset."""
+    response = client.get("/api/dataset-info")
+    assert response.status_code == 200
+    data = response.get_json()
+    countries = data["countries"]
+    assert "United States" in countries
+    assert "Japan" in countries
+    assert "Australia" in countries
+    assert "Canada" in countries
+    assert data["total_scholarships"] >= 35
 
 
 def test_chat_endpoint(client):
