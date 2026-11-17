@@ -232,4 +232,20 @@ def test_deadline_not_zero(client):
         assert dl != "", f"Empty deadline in {item['name']}"
 
 
+def test_gpa_text_not_zero(client):
+    """Verify that no recommendation or scholarship outputs ~0.0% text."""
+    res = client.post("/api/recommend", json={"degree": "master", "cgpa": 8.0, "cgpa_scale": 10.0})
+    assert res.status_code == 200
+    data = res.get_json()
+    items = data.get("results", [])
+    for item in items:
+        # Check warnings
+        for w in item.get("warnings", []):
+            assert "~0.0%" not in w and "0.0%" not in w, f"Found broken GPA text in warning: {w}"
+        # Check gpa_requirement
+        req = item.get("gpa_requirement", "")
+        assert "~0.0%" not in req and "0.0%" not in req, f"Found broken GPA text in gpa_requirement: {req}"
+
+
+
 

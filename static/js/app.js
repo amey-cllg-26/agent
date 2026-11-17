@@ -416,6 +416,10 @@ document.addEventListener("DOMContentLoaded", () => {
             <span><strong>Academics:</strong> ${escapeHtml(s.academic_note || 'Strong academic record')}</span>
           </li>
           <li>
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>${escapeHtml(s.gpa_requirement || 'Published minimum: Not specified — verify how your institution converts CGPA to percentage.')}</span>
+          </li>
+          <li>
             <i class="fa-solid fa-calendar"></i>
             <span><strong>Deadline:</strong> ${escapeHtml(s.deadline && s.deadline !== '0.0' && s.deadline !== '0' ? s.deadline : 'Not specified — verify on official site')}</span>
           </li>

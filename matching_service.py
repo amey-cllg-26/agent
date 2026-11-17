@@ -155,6 +155,30 @@ def fit_label(cgpa_4: float, suggested: Optional[float]) -> str:
     return "reach"
 
 
+def get_gpa_requirement_text(row: pd.Series) -> str:
+    """Returns human-readable minimum grade/CGPA requirement. Never returns ~0.0%."""
+    official = str(row.get("min_grade_percent_official", "")).strip()
+    if official and official not in ("0", "0.0", "nan", "None", "<NA>"):
+        try:
+            val = float(official)
+            if val > 0:
+                return f"Published minimum: ~{val:g}% (or equivalent in your institution's conversion)"
+        except ValueError:
+            return f"Published minimum: {official}"
+
+    comp = row.get("suggested_competitive_cgpa_4")
+    if pd.notna(comp):
+        try:
+            val4 = float(comp)
+            if val4 > 0:
+                val10 = round((val4 / 4.0) * 10, 1)
+                return f"Suggested competitive CGPA: ~{val4} / 4.0 (Approx. {val10} / 10.0 GCOEK)"
+        except (ValueError, TypeError):
+            pass
+
+    return "Published minimum: Not specified — verify how your institution converts CGPA to percentage."
+
+
 def row_to_dict(row: pd.Series, out_of_pocket: float, fit: str, warnings: List[str]) -> Dict[str, Any]:
     """Transforms a DataFrame row into a standardized response dict."""
     return {
@@ -168,6 +192,7 @@ def row_to_dict(row: pd.Series, out_of_pocket: float, fit: str, warnings: List[s
         "est_annual_support_usd": None if pd.isna(row.get("est_annual_support_usd")) else int(row.get("est_annual_support_usd")),
         "out_of_pocket_usd_per_year": int(out_of_pocket),
         "suggested_competitive_cgpa_4": None if pd.isna(row.get("suggested_competitive_cgpa_4")) else float(row.get("suggested_competitive_cgpa_4")),
+        "gpa_requirement": get_gpa_requirement_text(row),
         "academic_note": str(row.get("academic_note", "")),
         "english_requirement": str(row.get("english_requirement_note", "")),
         "work_experience": str(row.get("work_experience_note", "")),
@@ -237,18 +262,19 @@ def recommend(
 
         warnings = []
 
-        # Published minimum grade check
+        # Published minimum grade check - only warn if valid positive percentage exists
         official = str(row.get("min_grade_percent_official", "")).strip()
-        if official:
+        if official and official not in ("0", "0.0", "nan", "None", "<NA>"):
             try:
                 min_pct = float(official)
-                if cgpa_scale == 100:
-                    if cgpa < min_pct:
-                        continue
-                else:
-                    warnings.append(
-                        f"Published minimum is ~{official}%. Verify how your institution converts CGPA to percentage."
-                    )
+                if min_pct > 0:
+                    if cgpa_scale == 100:
+                        if cgpa < min_pct:
+                            continue
+                    else:
+                        warnings.append(
+                            f"Published minimum: ~{min_pct:g}%. Verify how your institution converts CGPA to percentage."
+                        )
             except ValueError:
                 pass
 
