@@ -179,6 +179,16 @@ def get_gpa_requirement_text(row: pd.Series) -> str:
     return "Published minimum: Not specified — verify how your institution converts CGPA to percentage."
 
 
+def format_eligible_nationalities(val: Any) -> str:
+    """Formats nationality strings cleanly, falling back to a sensible international default."""
+    if pd.isna(val):
+        return "Open to all nationalities worldwide"
+    s = str(val).strip()
+    if not s or s.lower() in ["nan", "none", "0", "0.0"]:
+        return "Open to all nationalities worldwide"
+    return s
+
+
 def row_to_dict(row: pd.Series, out_of_pocket: float, fit: str, warnings: List[str]) -> Dict[str, Any]:
     """Transforms a DataFrame row into a standardized response dict."""
     return {
@@ -196,7 +206,7 @@ def row_to_dict(row: pd.Series, out_of_pocket: float, fit: str, warnings: List[s
         "academic_note": str(row.get("academic_note", "")),
         "english_requirement": str(row.get("english_requirement_note", "")),
         "work_experience": str(row.get("work_experience_note", "")),
-        "eligible_nationalities": str(row.get("eligible_nationalities", "")),
+        "eligible_nationalities": format_eligible_nationalities(row.get("eligible_nationalities")),
         "warnings": warnings,
         "deadline": format_deadline(row.get("deadline")),
         "official_website": str(row.get("official_website", "")),

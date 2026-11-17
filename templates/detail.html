@@ -98,7 +98,14 @@
     <div class="detail-specs-col">
       <div class="card detail-section-card">
         <h3><i class="fa-solid fa-passport"></i> Eligibility & Nationality</h3>
-        <p class="specs-text">{{ scholarship.eligible_nationalities or "Open to all nationalities worldwide, or subject to official call requirements." }}</p>
+        <p class="specs-text">
+          {% if scholarship.eligible_nationalities and ('check list' in scholarship.eligible_nationalities|lower or 'eligible countries only' in scholarship.eligible_nationalities|lower or 'partner countries' in scholarship.eligible_nationalities|lower) %}
+            {{ scholarship.eligible_nationalities|replace('(check list)', '')|replace('check list', '')|trim }}
+            <a href="{{ scholarship.official_website }}" target="_blank" rel="noopener noreferrer" class="nationality-official-link">Eligibility: see official country list &rarr;</a>
+          {% else %}
+            {{ scholarship.eligible_nationalities or "Open to all nationalities worldwide, or subject to official call requirements." }}
+          {% endif %}
+        </p>
 
         {% if scholarship.warnings %}
         <div class="card-alert" style="margin-top: 1rem;">

@@ -273,6 +273,22 @@ def test_last_verified_timestamp(client):
         assert "202" in lv, f"Expected valid year in last_verified: {lv}"
 
 
+def test_nationality_formatting_and_links(client):
+    """Verify that eligible_nationalities does not show empty/broken values and official website links are valid."""
+    res = client.get("/api/scholarships")
+    assert res.status_code == 200
+    items = res.get_json()["scholarships"]
+    assert len(items) > 0
+    for item in items:
+        nat = item.get("eligible_nationalities", "")
+        assert nat != "", f"Empty nationality in {item['name']}"
+        assert "nan" not in nat.lower() and "none" not in nat.lower(), f"Unprocessed nan in nationality: {nat}"
+        # For items with official website, check website starts with http
+        web = item.get("official_website", "")
+        if web:
+            assert web.startswith("http"), f"Invalid official website in {item['name']}: {web}"
+
+
 
 
 

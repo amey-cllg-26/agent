@@ -1073,6 +1073,20 @@ body {
   color: #059669;
 }
 
+.nationality-official-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.25rem;
+}
+
+.nationality-official-link:hover {
+  color: var(--primary-hover);
+}
+
 .card-actions {
   display: flex;
   gap: 0.5rem;

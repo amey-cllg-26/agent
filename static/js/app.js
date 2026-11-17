@@ -451,6 +451,18 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
+    // Nationality Hyperlink Formatter
+    function formatNationalityHtml(text, website) {
+      if (!text) return "Open to all nationalities";
+      const low = text.toLowerCase();
+      const linkUrl = website || "#";
+      if (low.includes("check list") || low.includes("eligible countries only") || low.includes("see official list")) {
+        const cleanText = text.replace(/\(check list\)/gi, "").replace(/check list/gi, "").trim();
+        return `${escapeHtml(cleanText)} <a href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener noreferrer" class="nationality-official-link">Eligibility: see official country list &rarr;</a>`;
+      }
+      return escapeHtml(text);
+    }
+
     // Card Generator
     function createCard(s, isOverBudget = false) {
       const card = document.createElement("div");
@@ -522,6 +534,10 @@ document.addEventListener("DOMContentLoaded", () => {
             <i class="fa-solid fa-language"></i>
             <span><strong>Language:</strong> ${escapeHtml(s.english_requirement)}</span>
           </li>` : ''}
+          <li>
+            <i class="fa-solid fa-passport"></i>
+            <span><strong>Eligibility:</strong> ${formatNationalityHtml(s.eligible_nationalities, s.official_website)}</span>
+          </li>
         </ul>
 
         ${alertHtml}
@@ -629,7 +645,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           <div class="detail-item">
             <label>Eligible Nationalities</label>
-            <div class="detail-item-value">${escapeHtml(s.eligible_nationalities || 'Open to Indian and international students')}</div>
+            <div class="detail-item-value">${formatNationalityHtml(s.eligible_nationalities, s.official_website)}</div>
           </div>
 
           <div class="detail-item">
