@@ -1,0 +1,23 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+
+# Environment secrets
+.env
+
+# Uploaded custom CSVs (keep directory, ignore files)
+uploads/*
+!uploads/.gitkeep
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
