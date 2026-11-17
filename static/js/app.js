@@ -49,6 +49,56 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================================================================
+  // MOBILE NAVIGATION DRAWER TOGGLE
+  // =========================================================================
+  const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const mainNavLinks = document.getElementById("mainNavLinks");
+
+  if (mobileMenuBtn && mainNavLinks) {
+    mobileMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = mainNavLinks.classList.toggle("open");
+      mobileMenuBtn.setAttribute("aria-expanded", isOpen);
+      const icon = mobileMenuBtn.querySelector("i");
+      if (icon) {
+        if (isOpen) {
+          icon.classList.remove("fa-bars");
+          icon.classList.add("fa-xmark");
+        } else {
+          icon.classList.remove("fa-xmark");
+          icon.classList.add("fa-bars");
+        }
+      }
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", (e) => {
+      if (mainNavLinks.classList.contains("open") && !mainNavLinks.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        mainNavLinks.classList.remove("open");
+        mobileMenuBtn.setAttribute("aria-expanded", "false");
+        const icon = mobileMenuBtn.querySelector("i");
+        if (icon) {
+          icon.classList.remove("fa-xmark");
+          icon.classList.add("fa-bars");
+        }
+      }
+    });
+
+    // Close when clicking any nav item
+    mainNavLinks.querySelectorAll(".nav-item").forEach(link => {
+      link.addEventListener("click", () => {
+        mainNavLinks.classList.remove("open");
+        mobileMenuBtn.setAttribute("aria-expanded", "false");
+        const icon = mobileMenuBtn.querySelector("i");
+        if (icon) {
+          icon.classList.remove("fa-xmark");
+          icon.classList.add("fa-bars");
+        }
+      });
+    });
+  }
+
+  // =========================================================================
   // PAGE 1: DIRECTORY & PROFILE MATCHER (/)
   // =========================================================================
   const filterForm = document.getElementById("filterForm");

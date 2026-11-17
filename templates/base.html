@@ -40,9 +40,13 @@
           </div>
         </a>
       </div>
+      <!-- Mobile Hamburger Menu Button -->
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
 
       <!-- Multi-Page Navigation Menu -->
-      <nav class="main-nav-links">
+      <nav class="main-nav-links" id="mainNavLinks">
         <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
           <i class="fa-solid fa-magnifying-glass"></i> Directory
         </a>

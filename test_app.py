@@ -209,3 +209,14 @@ def test_india_chat_advisory(client):
     assert "MahaDBT" in data["reply"]
     assert "GCOEK" in data["reply"]
 
+
+def test_mobile_navigation_markup(client):
+    """Verify mobile hamburger button and responsive elements are present."""
+    res = client.get("/")
+    assert res.status_code == 200
+    assert b'id="mobileMenuBtn"' in res.data
+    assert b'class="mobile-menu-btn"' in res.data
+    assert b'id="mainNavLinks"' in res.data
+    assert b'fa-bars' in res.data
+
+

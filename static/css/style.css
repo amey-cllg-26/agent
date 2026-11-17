@@ -196,6 +196,33 @@ body {
   font-weight: 600;
 }
 
+/* Mobile Hamburger Toggle Button */
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-300);
+  background: var(--white);
+  color: var(--navy-900);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-left: auto;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--slate-100);
+  border-color: var(--slate-400);
+}
+
+.mobile-menu-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* Multi-Page Navigation Links */
 .main-nav-links {
   display: flex;
@@ -2068,41 +2095,375 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
+/* ==========================================================================
+   MOBILE & RESPONSIVE DESIGN STYLES
+   ========================================================================== */
+
+/* Tablets and small laptops (<= 992px) */
+@media (max-width: 992px) {
+  .nav-container {
+    padding: 0.65rem 1rem;
+    position: relative;
+    flex-wrap: wrap;
+  }
+
+  .nav-brand {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .brand-text {
+    max-width: calc(100vw - 120px);
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .brand-sub {
+    font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-actions {
+    display: none; /* Keep header clean on tablet/mobile */
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  .main-nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.25rem;
+    padding: 0.75rem 0 0.5rem;
+    border-top: 1px solid var(--slate-200);
+    margin-top: 0.5rem;
+  }
+
+  .main-nav-links.open {
+    display: flex;
+    animation: slideDownNav 0.2s ease-out forwards;
+  }
+
+  .main-nav-links .nav-item {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+    border-radius: var(--radius-sm);
+  }
+
   .content-layout {
     grid-template-columns: 1fr;
   }
+
   .filters-sidebar {
     position: static;
+    width: 100%;
   }
+
   .advisor-page-container {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
+
+  .chat-card-full {
+    height: 580px;
+  }
+
   .detail-specs-grid {
     grid-template-columns: 1fr;
   }
+
   .footer-top-row {
     grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
   }
 }
 
+@keyframes slideDownNav {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Devices (<= 768px) */
 @media (max-width: 768px) {
-  .nav-container {
-    flex-direction: column;
-    align-items: flex-start;
+  /* Institutional Top Bar */
+  .college-top-bar {
+    padding: 0.4rem 0.75rem;
   }
-  .main-nav-links {
-    width: 100%;
-    overflow-x: auto;
-    padding-bottom: 0.35rem;
-  }
-  .footer-top-row {
-    grid-template-columns: 1fr;
-  }
+
   .top-bar-container {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .college-top-name {
+    font-size: 0.775rem;
+  }
+
+  .official-tagline-pill {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  /* Hero Banners */
+  .college-hero-banner,
+  .india-hero-banner {
+    padding: 1.25rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-main-title {
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .hero-main-desc {
+    font-size: 0.85rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .hero-stats-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+    padding: 0.75rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .ribbon-num {
+    font-size: 1.15rem;
+  }
+
+  .ribbon-lbl {
+    font-size: 0.7rem;
+  }
+
+  /* Search Bar */
+  .search-bar-wrapper {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-bar-input input {
+    height: 44px;
+    font-size: 0.875rem;
+    padding-left: 2.5rem;
+  }
+
+  .search-bar-wrapper .btn {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+  }
+
+  /* Indian Caste Categories Carousel / Pills */
+  .caste-category-nav-bar {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .caste-pills-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.4rem;
+    gap: 0.4rem;
+    scrollbar-width: thin;
+  }
+
+  .caste-pill {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  /* Results Toolbar & Fit Tabs */
+  .results-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .results-count {
+    font-size: 1rem;
+  }
+
+  .fit-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.35rem;
+    gap: 0.35rem;
+    scrollbar-width: thin;
+  }
+
+  .fit-tab {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  /* Scholarship Cards & Actions */
+  .scholarships-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .scholarship-card {
+    padding: 1rem;
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.45rem;
+  }
+
+  .card-actions .btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 0.55rem 0.75rem;
+  }
+
+  /* Scheme Detail Financial Banner */
+  .detail-finance-banner {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .finance-divider {
+    display: none;
+  }
+
+  /* Chat window on mobile */
+  .chat-card-full {
+    height: 500px;
+  }
+
+  .chat-messages {
+    padding: 1rem;
+    gap: 0.85rem;
+  }
+
+  .chat-bubble {
+    max-width: 90%;
+    font-size: 0.825rem;
+  }
+
+  .chat-input-bar {
+    padding: 0.65rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .chat-input-bar textarea {
+    font-size: 0.85rem;
+  }
+
+  /* Modals */
+  .modal-backdrop {
+    padding: 0.75rem;
+  }
+
+  .modal-window {
+    width: 100% !important;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    padding: 1rem 1.15rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.05rem;
+  }
+
+  .modal-body {
+    padding: 1rem 1.15rem;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1.15rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Tables horizontal scroll */
+  .results-table-container,
+  .table-responsive,
+  .dataset-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
+  }
+
+  /* Footer */
+  .footer-top-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .footer-bottom-row {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
+/* Extra Small Phones (<= 480px) */
+@media (max-width: 480px) {
+  .hero-stats-ribbon {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .brand-name {
+    font-size: 0.95rem;
+  }
+
+  .brand-sub {
+    font-size: 0.65rem;
+  }
+
+  .country-grid {
+    grid-template-columns: 1fr;
   }
 }
 
