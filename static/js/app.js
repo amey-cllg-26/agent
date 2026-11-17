@@ -458,7 +458,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const outOfPocket = s.out_of_pocket_usd_per_year;
       const isFree = outOfPocket === 0;
-      const oopDisplay = isFree ? "FREE (100% Covered)" : `$${outOfPocket.toLocaleString()} / year`;
+      let oopDisplay = "";
+      if (isFree) {
+        oopDisplay = "FREE (100% Covered)";
+      } else if (s.coverage_level === "full") {
+        oopDisplay = `Est. out-of-pocket: ~$${outOfPocket.toLocaleString()}/year (verify)`;
+      } else {
+        oopDisplay = `Est. out-of-pocket: ~$${outOfPocket.toLocaleString()}/year (Partial)`;
+      }
 
       const fitClass = `badge-fit-${s.fit}`;
       const fitLabel = s.fit.charAt(0).toUpperCase() + s.fit.slice(1);
