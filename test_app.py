@@ -220,3 +220,16 @@ def test_mobile_navigation_markup(client):
     assert b'fa-bars' in res.data
 
 
+def test_deadline_not_zero(client):
+    """Verify that no scholarship returns a 0.0 or 0 deadline."""
+    res = client.get("/api/scholarships")
+    assert res.status_code == 200
+    items = res.get_json()["scholarships"]
+    assert len(items) > 0
+    for item in items:
+        dl = str(item.get("deadline", "")).strip()
+        assert dl != "0.0" and dl != "0", f"Broken deadline in {item['name']}: {dl}"
+        assert dl != "", f"Empty deadline in {item['name']}"
+
+
+

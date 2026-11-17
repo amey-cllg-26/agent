@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </li>
           <li>
             <i class="fa-solid fa-calendar"></i>
-            <span><strong>Deadline:</strong> ${escapeHtml(s.deadline || 'Check official site')}</span>
+            <span><strong>Deadline:</strong> ${escapeHtml(s.deadline && s.deadline !== '0.0' && s.deadline !== '0' ? s.deadline : 'Not specified — verify on official site')}</span>
           </li>
           ${s.english_requirement ? `
           <li>
@@ -462,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td><span class="badge-coverage-${s.coverage_level || 'partial'}">${(s.coverage_level || 'N/A').toUpperCase()}</span></td>
         <td><strong>${oopText}</strong></td>
         <td><span class="badge-fit ${fitClass}">${s.fit.toUpperCase()}</span></td>
-        <td>${escapeHtml(s.deadline || '-')}</td>
+        <td>${escapeHtml(s.deadline && s.deadline !== '0.0' && s.deadline !== '0' ? s.deadline : 'Not specified — verify on official site')}</td>
         <td>
           <div style="display: flex; gap: 0.4rem;">
             <a href="/scholarship/${encodeURIComponent(s.name)}" class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Profile</a>
@@ -529,7 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           <div class="detail-item">
             <label>Application Deadline</label>
-            <div class="detail-item-value">${escapeHtml(s.deadline || 'Check official website')}</div>
+            <div class="detail-item-value">${escapeHtml(s.deadline && s.deadline !== '0.0' && s.deadline !== '0' ? s.deadline : 'Not specified — verify on official site')}</div>
           </div>
         `;
       }

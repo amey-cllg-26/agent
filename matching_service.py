@@ -7,8 +7,28 @@ from typing import Dict, Any, List, Optional
 import os
 import pandas as pd
 
+DEADLINE_FALLBACK = "Not specified — verify on official site"
 NOT_RECORDED = "Not recorded - check the official website"
 FIT_ORDER = {"target": 0, "safer": 1, "reach": 2}
+
+
+def format_deadline(val: Any) -> str:
+    """Parses and formats a deadline value into a human-readable format.
+    Never returns 0.0 or 0. Falls back to 'Not specified — verify on official site'.
+    """
+    if val is None or pd.isna(val):
+        return DEADLINE_FALLBACK
+    s = str(val).strip()
+    if not s or s in ("0", "0.0", "nan", "None", "null", "<NA>", NOT_RECORDED):
+        return DEADLINE_FALLBACK
+    # If already a human-readable string (e.g. 'Opens Aug–Oct annually' or '15 Nov 2026'), return it
+    try:
+        dt = pd.to_datetime(s, errors="coerce")
+        if pd.notna(dt) and dt.year > 2000:
+            return dt.strftime("%d %b %Y")
+    except Exception:
+        pass
+    return s
 
 # Column aliases to support diverse CSV datasets uploaded by users
 COLUMN_ALIASES = {
@@ -59,9 +79,20 @@ def standardize_dataframe(raw_df: pd.DataFrame) -> pd.DataFrame:
         else:
             df[col] = None
 
+    # Text metadata columns that must NEVER be filled with numeric 0
+    text_cols = [
+        "scholarship_name", "country", "funder", "degree_levels", "coverage_level",
+        "coverage_summary", "academic_note", "english_requirement_note",
+        "work_experience_note", "eligible_nationalities", "competitiveness_estimate",
+        "deadline", "official_website", "confidence", "min_grade_percent_official"
+    ]
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str).replace(["nan", "None", "0.0", "0", "<NA>"], "")
+
     # Fill remaining columns appropriately by dtype
     for col in df.columns:
-        if col not in ["est_annual_cost_usd", "est_annual_support_usd", "suggested_competitive_cgpa_4"]:
+        if col not in ["est_annual_cost_usd", "est_annual_support_usd", "suggested_competitive_cgpa_4"] and col not in text_cols:
             if pd.api.types.is_numeric_dtype(df[col]):
                 df[col] = df[col].fillna(0)
             else:
@@ -142,7 +173,7 @@ def row_to_dict(row: pd.Series, out_of_pocket: float, fit: str, warnings: List[s
         "work_experience": str(row.get("work_experience_note", "")),
         "eligible_nationalities": str(row.get("eligible_nationalities", "")),
         "warnings": warnings,
-        "deadline": str(row.get("deadline", "")).strip() or NOT_RECORDED,
+        "deadline": format_deadline(row.get("deadline")),
         "official_website": str(row.get("official_website", "")),
         "data_confidence": str(row.get("confidence", "")),
     }

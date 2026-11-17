@@ -126,7 +126,7 @@
             <i class="fa-solid fa-calendar"></i>
             <div>
               <strong>Application Deadline:</strong>
-              <span>{{ scholarship.deadline or "Check official website for annual intake dates" }}</span>
+              <span>{{ scholarship.deadline if (scholarship.deadline and scholarship.deadline != '0.0' and scholarship.deadline != '0') else "Not specified — verify on official site" }}</span>
             </div>
           </li>
         </ul>
