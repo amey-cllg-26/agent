@@ -728,6 +728,38 @@ body {
   font-weight: 500;
 }
 
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sort-control-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sort-control-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--slate-600);
+  white-space: nowrap;
+}
+
+.sort-select {
+  height: 36px;
+  font-size: 0.825rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  border: 1px solid var(--slate-300);
+  color: var(--navy-900);
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .view-toggle {
   display: flex;
   background: var(--slate-100);

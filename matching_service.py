@@ -298,9 +298,18 @@ def recommend(
         else:
             over_budget.append(item)
 
-    # Sort results by out-of-pocket cost and fit hierarchy
-    results.sort(key=lambda r: (r["out_of_pocket_usd_per_year"], FIT_ORDER.get(r["fit"], 1)))
-    over_budget.sort(key=lambda r: r["out_of_pocket_usd_per_year"])
+    COVERAGE_ORDER = {"full": 0, "tuition": 1, "stipend": 2, "partial": 3, "unknown": 4}
+    # Default sort: by fit (Target -> Safer -> Reach), then coverage (Fully Funded first), then out-of-pocket
+    results.sort(key=lambda r: (
+        FIT_ORDER.get(r.get("fit", "target"), 1),
+        COVERAGE_ORDER.get(str(r.get("coverage_level", "")).lower(), 3),
+        r.get("out_of_pocket_usd_per_year", 0),
+        r.get("name", "")
+    ))
+    over_budget.sort(key=lambda r: (
+        FIT_ORDER.get(r.get("fit", "target"), 1),
+        r.get("out_of_pocket_usd_per_year", 0)
+    ))
 
     # Count by fit
     fit_counts = {"target": 0, "safer": 0, "reach": 0}

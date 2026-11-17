@@ -135,6 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const emptyResetBtn = document.getElementById("emptyResetBtn");
     const viewGridBtn = document.getElementById("viewGridBtn");
     const viewTableBtn = document.getElementById("viewTableBtn");
+    const sortOrderSelect = document.getElementById("sortOrderSelect");
 
     // Fit tab counts
     const countAll = document.getElementById("countAll");
@@ -308,6 +309,42 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // Sort Results Function
+    function sortResultsList(items, sortKey = "fit") {
+      const fitPriority = { target: 0, safer: 1, reach: 2 };
+      const covPriority = { full: 0, partial: 1, unknown: 2 };
+
+      return items.slice().sort((a, b) => {
+        if (sortKey === "fit") {
+          const fitA = fitPriority[a.fit] ?? 1;
+          const fitB = fitPriority[b.fit] ?? 1;
+          if (fitA !== fitB) return fitA - fitB;
+          const covA = covPriority[a.coverage_level] ?? 2;
+          const covB = covPriority[b.coverage_level] ?? 2;
+          if (covA !== covB) return covA - covB;
+          return (a.out_of_pocket_usd_per_year || 0) - (b.out_of_pocket_usd_per_year || 0);
+        } else if (sortKey === "coverage") {
+          const covA = covPriority[a.coverage_level] ?? 2;
+          const covB = covPriority[b.coverage_level] ?? 2;
+          if (covA !== covB) return covA - covB;
+          return (a.out_of_pocket_usd_per_year || 0) - (b.out_of_pocket_usd_per_year || 0);
+        } else if (sortKey === "oop_asc") {
+          return (a.out_of_pocket_usd_per_year || 0) - (b.out_of_pocket_usd_per_year || 0);
+        } else if (sortKey === "oop_desc") {
+          return (b.out_of_pocket_usd_per_year || 0) - (a.out_of_pocket_usd_per_year || 0);
+        } else if (sortKey === "deadline") {
+          const dlA = a.deadline || "";
+          const dlB = b.deadline || "";
+          const isAUnspec = dlA.includes("Not specified") || dlA.includes("Check");
+          const isBUnspec = dlB.includes("Not specified") || dlB.includes("Check");
+          if (isAUnspec && !isBUnspec) return 1;
+          if (!isAUnspec && isBUnspec) return -1;
+          return dlA.localeCompare(dlB);
+        }
+        return 0;
+      });
+    }
+
     function renderCurrentFilteredResults() {
       if (!resultsGrid || !resultsTableBody) return;
       resultsGrid.innerHTML = "";
@@ -317,6 +354,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentFitFilter !== "all") {
         filtered = allMatchedResults.filter(s => s.fit === currentFitFilter);
       }
+
+      const sortKey = sortOrderSelect ? sortOrderSelect.value : "fit";
+      filtered = sortResultsList(filtered, sortKey);
 
       const hasResults = filtered && filtered.length > 0;
 
@@ -341,10 +381,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (overBudgetResults.length > 0 && overBudgetContainer && overBudgetGrid) {
         overBudgetContainer.style.display = "block";
         overBudgetGrid.innerHTML = "";
-        overBudgetResults.forEach(s => overBudgetGrid.appendChild(createCard(s, true)));
+        const sortedOver = sortResultsList(overBudgetResults, sortKey);
+        sortedOver.forEach(s => overBudgetGrid.appendChild(createCard(s, true)));
       } else if (overBudgetContainer) {
         overBudgetContainer.style.display = "none";
       }
+    }
+
+    if (sortOrderSelect) {
+      sortOrderSelect.addEventListener("change", () => {
+        renderCurrentFilteredResults();
+      });
     }
 
     // View Mode Toggles

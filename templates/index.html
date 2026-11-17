@@ -165,6 +165,16 @@
           <div class="active-tags" id="activeFilterTags"></div>
         </div>
         <div class="toolbar-right">
+          <div class="sort-control-group">
+            <label for="sortOrderSelect" class="sort-control-label"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort:</label>
+            <select id="sortOrderSelect" class="form-control select-compact sort-select" aria-label="Sort scholarships">
+              <option value="fit" selected>Best Match (Target → Safer → Reach)</option>
+              <option value="coverage">Coverage (Fully Funded First)</option>
+              <option value="oop_asc">Out-of-Pocket: Low to High</option>
+              <option value="oop_desc">Out-of-Pocket: High to Low</option>
+              <option value="deadline">Deadline Urgency</option>
+            </select>
+          </div>
           <div class="view-toggle">
             <button class="view-btn active" id="viewGridBtn" title="Card Grid View">
               <i class="fa-solid fa-table-cells-large"></i>

@@ -247,5 +247,20 @@ def test_gpa_text_not_zero(client):
         assert "~0.0%" not in req and "0.0%" not in req, f"Found broken GPA text in gpa_requirement: {req}"
 
 
+def test_sorting_order(client):
+    """Verify that recommendations are sorted by fit hierarchy (Target first)."""
+    res = client.post("/api/recommend", json={"degree": "master", "cgpa": 8.0, "cgpa_scale": 10.0})
+    assert res.status_code == 200
+    results = res.get_json()["results"]
+    assert len(results) > 0
+    fits = [r["fit"] for r in results]
+    # Check that Target occurs before Reach
+    if "target" in fits and "reach" in fits:
+        first_target = fits.index("target")
+        first_reach = fits.index("reach")
+        assert first_target <= first_reach, f"Target ({first_target}) should come before Reach ({first_reach})"
+
+
+
 
 
