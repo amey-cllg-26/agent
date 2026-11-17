@@ -485,7 +485,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Quick View Modal
     function openDetailModal(s) {
       if (!detailModal) return;
-      if (detailCountryTag) detailCountryTag.textContent = s.country || "International";
+      if (detailCountryTag) {
+        detailCountryTag.textContent = s.country || "International";
+        detailCountryTag.style.display = "inline-block";
+      }
       if (detailTitle) detailTitle.textContent = s.name;
       if (detailFunder) detailFunder.textContent = s.funder || s.country;
       if (detailOfficialLink) detailOfficialLink.href = s.official_website || "#";

@@ -1826,7 +1826,7 @@ body {
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(3px);
   z-index: 100;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
@@ -1836,6 +1836,7 @@ body {
 }
 
 .modal-backdrop.active {
+  display: flex;
   opacity: 1;
   pointer-events: auto;
 }
